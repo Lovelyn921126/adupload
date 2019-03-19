@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 2017-4-21 13:03:17 by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping>
+    <class name="com.fang.pojoformssql.SlFile" table="SlFile">
+        <id name="id" type="java.lang.Long">
+            <column name="ID" />
+            <generator class="native" />
+        </id>
+        <property name="sourceId" type="java.lang.String">
+            <column name="SourceID" />
+        </property>
+        <property name="projectName" type="java.lang.String">
+            <column name="ProjectName" />
+        </property>
+        <property name="sourceUrl" type="java.lang.String">
+            <column name="SourceURL" />
+        </property>
+        <property name="sourceType" type="java.lang.String">
+            <column name="SourceType" />
+        </property>
+        <property name="sourceSize" type="java.lang.Integer">
+            <column name="SourceSize" />
+        </property>
+        <property name="sourceWidth" type="java.lang.Integer">
+            <column name="SourceWidth" />
+        </property>
+        <property name="sourceHeight" type="java.lang.Integer">
+            <column name="SourceHeight" />
+        </property>
+        <property name="serviceType" type="java.lang.Integer">
+            <column name="ServiceType" />
+        </property>
+        <property name="cityId" type="java.lang.Integer">
+            <column name="CityID" />
+        </property>
+        <property name="locationId" type="java.lang.Integer">
+            <column name="LocationID" />
+        </property>
+        <property name="channelId" type="java.lang.Integer">
+            <column name="ChannelID" />
+        </property>
+        <property name="acquireInfoWay" type="java.lang.String">
+            <column name="AcquireInfoWay" />
+        </property>
+        <property name="uploadUserID" type="java.lang.String">
+            <column name="UploadUserID" />
+        </property>
+        <property name="uploadUsername" type="java.lang.String">
+            <column name="UploadUsername" />
+        </property>
+        <property name="isDelete" type="java.lang.Integer">
+            <column name="IsDelete" />
+        </property>
+        <property name="createTime" type="java.util.Date">
+            <column name="CreateTime" />
+        </property>
+        <property name="updateTime" type="java.util.Date">
+            <column name="UpdateTime" />
+        </property>
+    </class>
+</hibernate-mapping>

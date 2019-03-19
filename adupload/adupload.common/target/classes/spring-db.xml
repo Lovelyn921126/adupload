@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+  xmlns:tx="http://www.springframework.org/schema/tx" xmlns:aop="http://www.springframework.org/schema/aop"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.2.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.2.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.2.xsd">
+
+  <!-- 引入jdbc配置文件 -->
+  <context:property-placeholder ignore-unresolvable="true" location="classpath:conf/db/jdbc.develope.properties" />
+
+  <!-- ********** dataSource数据源配置 ********** -->
+  <!--创建jdbc数据源 _读写权限 -->
+  <bean name="dataSource_w" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
+    <property name="url" value="${jdbc.w.url}" />
+    <property name="username" value="${jdbc.w.username}" />
+    <property name="password" value="${jdbc.w.password}" />
+
+    <!-- 初始化连接池大小、最小、最大 -->
+    <property name="initialSize" value="${initialPoolSize}" />
+    <property name="minIdle" value="${minPoolSize}" />
+    <property name="maxActive" value="${maxPoolSize}" />
+
+    <!-- 获取连接等待超时的时间,单位：毫秒，超过最大空闲时间未使用则连接被丢弃,若为0则永不丢弃。Default: 0 -->
+    <property name="maxWait" value="${maxIdleTime}" />
+
+    <!--是否缓存preparedStatement，也就是PSCache。 PSCache对支持游标的数据库性能提升巨大，比如说oracle。 在mysql5.5以下的版本中没有PSCache功能，建议关闭掉。 -->
+    <property name="poolPreparedStatements" value="${poolPreparedStatements}" />
+    <!--要启用PSCache，必须配置大于0，当大于0时， poolPreparedStatements自动触发修改为true。 在Druid中，不会存在Oracle下PSCache占用内存过多的问题， 可以把这个数值配置大一些，比如说100。 -->
+    <property name="maxPoolPreparedStatementPerConnectionSize" value="${maxStatements}" />
+
+    <!-- 用来检测连接是否有效的sql，要求是一个查询语句。 如果validationQuery为null，testOnBorrow、testOnReturn、 testWhileIdle都不会其作用 -->
+    <property name="validationQuery" value="${validationQuery}" />
+    <!-- 申请连接时执行validationQuery检测连接是否有效，这个配置成true会降低性能 -->
+    <property name="testOnBorrow" value="false" />
+    <!-- 归还连接时执行validationQuery检测连接是否有效，这个配置成true会降低性能 -->
+    <property name="testOnReturn" value="false" />
+    <!-- 建议配置为true，不影响性能，并且保证安全性。 申请连接的时候检测，如果空闲时间大于 timeBetweenEvictionRunsMillis，执行validationQuery检测连接是否有效 -->
+    <property name="testWhileIdle" value="true" />
+
+    <!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 -->
+    <property name="timeBetweenEvictionRunsMillis" value="${timeBetweenEvictionRunsMillis}" />
+    <!-- 配置一个连接在池中最小生存的时间，单位是毫秒 -->
+    <property name="minEvictableIdleTimeMillis" value="${minEvictableIdleTimeMillis}" />
+
+    <!-- 配置removeAbandoned对性能会有一些影响，建议怀疑存在泄漏之后再打开。在上面的配置中，如果连接超过30分钟未关闭，就会被强行回收，并且日志记录连接申请时的调用堆栈。 -->
+    <!-- 打开removeAbandoned功能 -->
+    <property name="removeAbandoned" value="true" />
+    <!-- 1800秒，也就是30分钟 -->
+    <property name="removeAbandonedTimeout" value="1800" />
+    <!-- 关闭abanded连接时输出错误日志 -->
+    <property name="logAbandoned" value="true" />
+
+    <!-- 监控数据库 -->
+    <property name="proxyFilters">
+      <list>
+        <ref bean="stat-filter" />
+      </list>
+    </property>
+  </bean>
+
+  <!--创建jdbc数据源 _读权限 -->
+  <bean name="dataSource_r" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
+    <property name="url" value="${jdbc.r.url}" />
+    <property name="username" value="${jdbc.r.username}" />
+    <property name="password" value="${jdbc.r.password}" />
+
+    <!-- 初始化连接池大小、最小、最大 -->
+    <property name="initialSize" value="${initialPoolSize}" />
+    <property name="minIdle" value="${minPoolSize}" />
+    <property name="maxActive" value="${maxPoolSize}" />
+
+    <!-- 获取连接等待超时的时间,单位：毫秒，超过最大空闲时间未使用则连接被丢弃,若为0则永不丢弃。Default: 0 -->
+    <property name="maxWait" value="${maxIdleTime}" />
+
+    <!--是否缓存preparedStatement，也就是PSCache。 PSCache对支持游标的数据库性能提升巨大，比如说oracle。 在mysql5.5以下的版本中没有PSCache功能，建议关闭掉。 -->
+    <property name="poolPreparedStatements" value="${poolPreparedStatements}" />
+    <!--要启用PSCache，必须配置大于0，当大于0时， poolPreparedStatements自动触发修改为true。 在Druid中，不会存在Oracle下PSCache占用内存过多的问题， 可以把这个数值配置大一些，比如说100。 -->
+    <property name="maxPoolPreparedStatementPerConnectionSize" value="${maxStatements}" />
+
+    <!-- 用来检测连接是否有效的sql，要求是一个查询语句。 如果validationQuery为null，testOnBorrow、testOnReturn、 testWhileIdle都不会其作用 -->
+    <property name="validationQuery" value="${validationQuery}" />
+    <!-- 申请连接时执行validationQuery检测连接是否有效，这个配置成true会降低性能 -->
+    <property name="testOnBorrow" value="false" />
+    <!-- 归还连接时执行validationQuery检测连接是否有效，这个配置成true会降低性能 -->
+    <property name="testOnReturn" value="false" />
+    <!-- 建议配置为true，不影响性能，并且保证安全性。 申请连接的时候检测，如果空闲时间大于 timeBetweenEvictionRunsMillis，执行validationQuery检测连接是否有效 -->
+    <property name="testWhileIdle" value="true" />
+
+    <!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 -->
+    <property name="timeBetweenEvictionRunsMillis" value="${timeBetweenEvictionRunsMillis}" />
+    <!-- 配置一个连接在池中最小生存的时间，单位是毫秒 -->
+    <property name="minEvictableIdleTimeMillis" value="${minEvictableIdleTimeMillis}" />
+
+    <!-- 配置removeAbandoned对性能会有一些影响，建议怀疑存在泄漏之后再打开。在上面的配置中，如果连接超过30分钟未关闭，就会被强行回收，并且日志记录连接申请时的调用堆栈。 -->
+    <!-- 打开removeAbandoned功能 -->
+    <property name="removeAbandoned" value="true" />
+    <!-- 1800秒，也就是30分钟 -->
+    <property name="removeAbandonedTimeout" value="1800" />
+    <!-- 关闭abanded连接时输出错误日志 -->
+    <property name="logAbandoned" value="true" />
+
+    <!-- 监控数据库 -->
+    <property name="proxyFilters">
+      <list>
+        <ref bean="stat-filter" />
+      </list>
+    </property>
+  </bean>
+
+  <!-- 大于60ms打印日志，默认3000ms -->
+  <bean id="stat-filter" class="com.alibaba.druid.filter.stat.StatFilter">
+    <property name="mergeSql" value="true" />
+    <property name="slowSqlMillis" value="10000" />
+    <property name="logSlowSql" value="true" />
+  </bean>
+
+  <bean id="wall-filter" class="com.alibaba.druid.wall.WallFilter">
+    <property name="dbType" value="mysql" />
+    <property name="config" ref="wall-filter-config" />
+  </bean>
+
+  <bean id="wall-filter-config" class="com.alibaba.druid.wall.WallConfig">
+    <property name="multiStatementAllow" value="true" />
+  </bean>
+
+  <!-- 配置druid监控spring jdbc -->
+  <bean id="druid-stat-interceptor" class="com.alibaba.druid.support.spring.stat.DruidStatInterceptor"></bean>
+  <bean id="druid-stat-pointcut" class="org.springframework.aop.support.JdkRegexpMethodPointcut" scope="prototype">
+    <property name="patterns">
+      <list>
+        <value>com.fang.service.*</value>
+        <value>com.fang.dao.*</value>
+      </list>
+    </property>
+  </bean>
+  <aop:config>
+    <aop:advisor advice-ref="druid-stat-interceptor" pointcut-ref="druid-stat-pointcut" />
+  </aop:config>
+
+  <bean id="dataSource" class="com.fang.utils.orm.mybatis.DynamicDataSource">
+    <property name="master" ref="dataSource_w" />
+    <property name="slaves">
+      <list>
+        <ref bean="dataSource_r" />
+      </list>
+    </property>
+  </bean>
+
+  <!-- ********** 整合mybatis配置 ********** -->
+  <!-- ibatis3 工厂类 -->
+  <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+    <property name="dataSource" ref="dataSource" />
+    <property name="configLocation" value="classpath:mybatis/mybatis.cfg.xml" />
+  </bean>
+
+  <!-- 扫描mapper路径 -->
+  <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+    <!-- 指定mapper路径 -->
+    <property name="basePackage" value="com.fang.dao" />
+  </bean>
+
+  <bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+    <constructor-arg index="0" ref="sqlSessionFactory" />
+  </bean>
+
+  <bean id="dynamicSqlSessionTemplate" class="com.fang.utils.orm.mybatis.DynamicSqlSessionTemplate">
+    <constructor-arg index="0" ref="sqlSessionTemplate" />
+  </bean>
+
+  <!-- ********** 事务配置 ********** -->
+  <!-- 定义单个jdbc数据源的事务管理器 -->
+  <bean id="transactionManager" class="com.fang.utils.orm.mybatis.DynamicDataSourceTransactionManager">
+    <property name="dataSource" ref="dataSource" />
+  </bean>
+
+  <!-- 以 @Transactional 标注来定义事务 -->
+  <tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true" />
+
+  <!-- 事务管理传播配置:add、modify、delete、update开头默认开启事务 -->
+  <tx:advice id="txAdvice" transaction-manager="transactionManager">
+    <tx:attributes>
+      <tx:method name="add*" propagation="REQUIRED" isolation="SERIALIZABLE" read-only="false" rollback-for="Exception" />
+      <tx:method name="insert*" propagation="REQUIRED" isolation="SERIALIZABLE" read-only="false" rollback-for="Exception" />
+
+      <tx:method name="modify*" propagation="REQUIRED" isolation="SERIALIZABLE" read-only="false" rollback-for="Exception" />
+      <tx:method name="update*" propagation="REQUIRED" isolation="SERIALIZABLE" read-only="false" rollback-for="Exception" />
+
+      <tx:method name="delete*" propagation="REQUIRED" isolation="SERIALIZABLE" read-only="false" rollback-for="Exception" />
+      <tx:method name="remove*" propagation="REQUIRED" isolation="SERIALIZABLE" read-only="false" rollback-for="Exception" />
+
+      <tx:method name="issuing*" propagation="REQUIRED" isolation="SERIALIZABLE" read-only="false" rollback-for="Exception" />
+
+      <tx:method name="proc*" propagation="REQUIRED" isolation="SERIALIZABLE" read-only="false" rollback-for="Exception" />
+
+      <tx:method name="query*" read-only="true" />
+      <tx:method name="select*" read-only="true" />
+      <tx:method name="get*" read-only="true" />
+
+      <tx:method name="exist*" read-only="true" />
+      <tx:method name="*" read-only="false" />
+    </tx:attributes>
+  </tx:advice>
+  <!-- 那些类的哪些方法参与事务 -->
+  <aop:config>
+    <aop:pointcut id="allManagerMethod" expression="execution(* com.fang.service.*.*(..))" />
+    <aop:advisor pointcut-ref="allManagerMethod" advice-ref="txAdvice" />
+  </aop:config>
+
+</beans>

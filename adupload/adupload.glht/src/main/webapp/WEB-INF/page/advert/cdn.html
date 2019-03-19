@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>cdn缓存管理</title>
+	#parse("sys/globalCSS.html")
+</head>
+
+<body class="gray-bg">
+	#parse("sys/loading.html")
+	<div id="rrapp" class="wrapper wrapper-content animated fadeInRight" v-cloak>
+		<div class="row">
+			<div class="col-sm-12">
+				<div class="ibox float-e-margins">
+					<div class="ibox-content">
+						<h2>
+                          <span class="text-navy">清理cdn缓存</span>
+                      </h2>
+						<div class="search-form">
+							<form class="layui-form" accept-charset="Unicode" enctype="application/x-www-form-urlencoded" method="post" action="http://cleancache.fang.com/post.php" target="hiddenIFrame">
+								<div class="input-group">
+									<input type="tel" placeholder="需要清理的完整url" lay-verify="url" autocomplete="off" name="url" class="form-control input-lg">
+									<div class="input-group-btn">
+										<button class="btn btn-lg btn-primary" lay-submit="" lay-filter="submit">清理</button>
+									</div>
+								</div>
+							</form>
+							<iframe name="hiddenIFrame" id="hiddenIFrame" style="display: none;"></iframe>
+						</div>
+						<div class="hr-line-dashed"></div>
+						<blockquote class="layui-elem-quote word-wrap">
+							<ol>
+								<li>以<span class="text-danger">http://</span>开头，以具体文件名结尾,包括文件扩展名。 如: http://imgdn3.soufunimg.com/2014/09/15/bj/gebz/9b476cc830424fc1929a9887a1cdf5c6.jpg</li>
+								<li>执行完毕后,需清除本机浏览器缓存,再查看缓存是否清除!</li>
+								<li>如上面方式清理不成功，到下面地址清理!
+									<a target="_blank" href="http://cleancache.soufun.com/">http://cleancache.soufun.com/</a>
+								</li>
+								<li>如还不行,请联系王翔[wangxiang.bj@fang.com]</li>
+							</ol>
+						</blockquote>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	#parse("sys/globalJS.html")
+	<script src="${rc.contextPath}/js/advert/cdn.js?_${date.systemTime}"></script>
+</body>
+
+</html>

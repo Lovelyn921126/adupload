@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<title>预览</title>
+		<link href="${rc.contextPath}/statics/css/style2.css?v=4.1.0" rel="stylesheet"> #parse("sys/globalCSS.html")
+
+		<style>
+			.wrapper-content .blocks>li>.widget {
+				margin-bottom: 0
+			}
+			
+			.widget {
+				padding: 0;
+			}
+			
+			.widget-body {
+				padding: 15px 15px;
+			}
+			
+			.layui-form-item .layui-form-checkbox[lay-skin=primary] {
+			  margin-top: 0;
+			}
+		</style>
+	</head>
+
+	<body class="gray-bg">
+		#parse("sys/loading.html")
+		<div id="rrapp" class="wrapper wrapper-content animated fadeInRight " v-cloak>
+			
+			<div v-show="comment === false">
+			
+				<div class="ribbon ribbon-success" style="padding: 10px 30px;">
+					<span class="ribbon-inner">项目名-{{q.projectName}}</span>
+				</div>
+				
+				<div style="padding-top: 30px;"><small class="text-navy">通过项目名模糊查看的时候，如果列表页面选择了只查看“我的”，那么此预览页面只能查看自己创建的哦~</small></div>
+				<ul class="" id="masonry" data-plugin="masonry"></ul>
+				<div id="small-chat" style="top: 15px;" v-show="preSelectShow">
+		      <a class="btn btn-primary btn-sm copybtn" @click="preSelect">预览选中的广告</a>
+		    </div>
+			</div>
+			
+			<div v-show="comment === true">
+				<div class="ribbon ribbon-success" style="padding: 10px 30px;">
+					<span class="ribbon-inner">人气、点赞、说一说 (项目名-{{q.projectName}})</span>
+				</div>
+				<div class="ibox float-e-margins" style="padding-top: 30px;">
+	        <div class="ibox-content">
+	        	<div class="pull-left">
+		  				人气 / <a href="javascript:;">{{pv}}</a> · 
+		        	点赞 / <a href="javascript:;">{{up}}</a>
+		  			</div>
+		  			<div class="pull-right">
+		  				<a class="btn btn-primary btn-xs" href="javascript:vm.delComment()"><i class="fa fa-trash-o"></i>&nbsp;删除说一说</a>
+		  			</div>
+		  			<div class="jqGrid_wrapper" style="clear: both;">
+							<table id="jqGrid"></table>
+							<div id="jqGridPager"></div>
+						</div>
+	        </div>
+	      </div>
+			</div>
+
+		</div>
+
+		#parse("sys/globalJS.html")
+		<script src="${rc.contextPath}/statics/libs/plugins/clipboard/clipboard.min.js"></script>
+		<script>
+			layui.use(['form'], function() {
+				var form = layui.form();
+				window.form = layui.form();
+				
+				//监听checkbox
+				form.on('checkbox(select)', function (data) {
+					var sourceId = $(data.elem).attr('sourceId');
+					if (data.elem.checked) {
+						vm.selectList.push(sourceId);
+					} else {
+						_.pull(vm.selectList, sourceId);
+					}
+				});
+			});
+
+			var vm = new Vue({
+				el: '#rrapp',
+				data: {
+					comment:false,
+					preSelectShow:true,
+					pv:0,
+					up:0,
+					q: {
+						projectName: '项目名',
+						serviceType: 1,
+						limit: 10,
+						myOwn: true,
+					},
+					file: {},
+					selectList:[]
+				},
+				methods: {
+					loadFlow: function() {
+						layui.use(['flow'], function() {
+							layui.flow.load({
+								elem: '#masonry',
+								done: function(page, next) {
+									setTimeout(function() {
+										var lis = [];
+										$.get('../advert/advert/list', {
+											serviceType: vm.q.serviceType,
+											projectName: vm.q.projectName,
+											myOwn: vm.q.myOwn,
+											limit: vm.q.limit,
+											page: page
+										}, function(res) {
+											var data = res.page;
+											layui.each(data.list, function(index, item) {
+												vm.file = item;
+												var index = (page - 1) * vm.q.limit + index + 1;
+												lis.push(vm.initBody(index));
+											});
+											next(lis.join(''), page < data.totalPage);
+											window.form.render();
+											vm.initZeroClipboard();
+										});
+									}, 500);
+								}
+							});
+						});
+					},
+					initBody: function(index) {
+						var ext = vm.file.sourceExtension.toLowerCase();
+						var coverBody = '';
+						if(_.includes(ext, 'zip')) {
+							coverBody =
+								'<div style="max-width:300px;" class="alert alert-icon alert-primary alert-dismissibl center-block margin-bottom-0" role="alert">\
+                    <i class="icon fa fa-info"></i>\
+                    Hi，我是一个ZIP文件，不支持预览！\
+                </div>';
+						} else if(_.includes(ext, 'swf')) {
+							coverBody = sprintf('<embed class="cover-image" src="%s?token=%s" type="application/x-shockwave-flash" style="max-width: %spx;max-height: %spx;">', vm.file.sourceUrl, _.now(), vm.file.sourceWidth, vm.file.sourceHeight);
+						} else {
+							coverBody = sprintf('<img class="cover-image" src="%s?token=%s" alt="..." style="max-width: %spx;max-height: %spx;">', vm.file.sourceUrl, _.now(), vm.file.sourceWidth, vm.file.sourceHeight);
+						}
+
+//						var comment = '';
+//          if(vm.comment) {
+//          	comment = '\
+//          		<div style="margin-top:20px">\
+//          			<div class="pull-left">\
+//          				人气 / <a href="javascript:;">' + vm.pv + '</a> · \
+//                	点赞 / <a href="javascript:;">' + vm.up + '</a>\
+//          			</div>\
+//          			<div class="pull-right">\
+//          				<a class="btn btn-primary btn-xs" href="javascript:vm.delComment()"><i class="fa fa-trash-o"></i>&nbsp;删除说一说</a>\
+//          			</div>\
+//								</div>\
+//								<div class="jqGrid_wrapper" style="clear: both;">\
+//									<table id="jqGrid"></table>\
+//									<div id="jqGridPager"></div>\
+//								</div>\
+//          	';
+//          }
+
+						var body = '\
+            <li class="text-center masonry-item">\
+                <div class="widget widget-article widget-shadow">\
+                    <div class="row">' + coverBody + '</div>\
+                    <div class="widget-body">\
+                        <p class="widget-metas row">\
+                            项目名 / <a href="javascript:;">' + vm.file.projectName + '</a> · \
+                            宽高 / <a href="javascript:;">' + vm.file.sourceWidth + '*' + vm.file.sourceHeight + '</a> · \
+                            大小 / <a href="javascript:;">' + parseInt(vm.file.sourceSize / 1024) + '(KB)</a> · \
+                            上传日期 / <a href="javascript:;">' + vm.file.createTime + '</a> \
+                        </p>\
+                        <div class="widget-body-footer margin-top-10">\
+                            <div class="input-group" style="max-width:700px;margin-left: auto;margin-right: auto;">\
+                                <input type="text" class="form-control input-sm sourceUrl' + index + '" value="' + vm.file.sourceUrl + '" readonly="readonly" >\
+                                <span class="input-group-btn">\
+                                    <button class="btn btn-primary btn-sm copybtn" data-clipboard-action="copy" data-clipboard-target=".sourceUrl' + index + '">复制</button>\
+                                </span>\
+                            </div>\
+                            <div class="widget-actions layui-form pull-right">\
+                            		<div class="layui-form-item" style="margin-bottom: 0;">\
+	                            		<div class="layui-input-inline">\
+	                            			<input type="checkbox" name="select" lay-skin="primary" lay-filter="select" title="添加到预览" sourceId="' + vm.file.sourceId + '">\
+	                            			<span class="badge badge-radius badge-primary">' + index + '</span>\
+	                                </div>\
+	                              </div>\
+                            </div>\
+                        </div>\
+                    </div>\
+                </div>\
+            </li>';
+            
+						return body;
+					},
+					initSingleBody: function() {
+						layui.use(['flow'], function() {
+							layui.flow.load({
+								elem: '#masonry',
+								done: function(page, next) {
+									setTimeout(function() {
+										vm.file.sourceSize = vm.file.sourceSize * 1024;
+										next(vm.initBody(1), page < 1);
+										vm.initComment();
+										vm.initPvUp();
+									}, 500);
+									window.form.render();
+									vm.initZeroClipboard();
+								}
+							});
+						});
+					},
+					initComment: function() {
+						if(vm.comment && $('#jqGrid').length){
+							$("#jqGrid").jqGrid({
+				        url: '../advert/comment/message',
+				        postData : {
+				        	panoid: vm.file.sourceId
+				        },
+				        height: 400,
+				        colModel: [{
+				        	label: 'ID',
+									name: 'id',
+									width: 40,
+									hidden: true,
+									key: true
+				        },{
+			            label: '用户ID',
+			            name: 'userid',
+			            hidden: true
+				        }, {
+			            width: 6,
+			            label: ' ',
+			            name: 'avatar',
+			            formatter: function (value, options, row) {
+			            	var avatar = value == null || value == '' ? row.userid : '<img style="width: 18px;height: 18px;border-radius: 50%;" alt="image" src="' + value + '">';
+			            	return avatar;
+									}
+				        },{
+			            width: 70,
+			            label: '说一说',
+			            name: 'message'
+				        },{
+				        	width: 25,
+				        	label: '发表时间',
+			            name: 'createTime'
+				        }]
+    					});
+						}
+					},
+					initPvUp: function() {
+						if(vm.comment){
+							$.get("../advert/hits/pvup",{panoid:vm.file.sourceId}, function (r) {
+									vm.pv = r.pv;
+	                vm.up = r.up;
+	            });
+            }
+					},
+					delComment: function () {
+						var commentIds = getSelectedRows();
+						if (commentIds == null) {
+							return;
+						}
+			
+						confirm('确定要删除选中的记录？', function () {
+							$.ajax({
+								type: "POST",
+								url: "../advert/comment/delete",
+								data: JSON.stringify(commentIds),
+								success: function (r) {
+									if (r.code === 0) {
+										alert('操作成功', function (index) {
+											vm.reload();
+										});
+									} else {
+										toastr.error(r.msg, "");
+									}
+								}
+							});
+						});
+					},
+					reload: function () {
+						var page = $("#jqGrid").jqGrid('getGridParam', 'page');
+						$("#jqGrid").jqGrid('setGridParam', {
+							postData : {
+			        	panoid: vm.file.sourceId
+			        },
+							page: page
+						}).trigger("reloadGrid");
+						vm.initPvUp();
+					},
+					initZeroClipboard: function() {
+						var clipboard = new Clipboard('.copybtn');
+					},
+					preSelect:function() {
+						if(vm.selectList.length == 0){
+							alert("至少得勾选一个广告");
+							return;
+						}
+						window.open("../advert/advert/selectedlist?idcollection=" + _.join(vm.selectList, ','));
+					}
+
+				}
+			});
+		</script>
+	</body>
+
+</html>

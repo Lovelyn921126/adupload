@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>菜单管理</title> #parse("sys/globalCSS.html")
+</head>
+
+<body class="gray-bg">
+	#parse("sys/loading.html")
+	<div id="rrapp" class="wrapper wrapper-content  animated fadeInRight" v-cloak>
+		<div v-show="showList">
+			<div class="ibox ">
+				<div class="ibox-title">
+					<div class="grid-btn">
+						#if($shiro.hasPermission("sys:menu:save"))
+						<a class="btn btn-primary" @click="add"><i class="fa fa-plus"></i>&nbsp;新增</a> #end #if($shiro.hasPermission("sys:menu:update"))
+						<a class="btn btn-primary" @click="update"><i class="fa fa-pencil-square-o"></i>&nbsp;修改</a> #end #if($shiro.hasPermission("sys:menu:delete"))
+						<a class="btn btn-primary" @click="del"><i class="fa fa-trash-o"></i>&nbsp;删除</a> #end
+					</div>
+				</div>
+				<div class="ibox-content">
+					<div class="jqGrid_wrapper">
+						<table id="jqGrid"></table>
+						<div id="jqGridPager"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="ibox float-e-margins" v-show="!showList">
+			<div class="ibox-title">
+				<h5>{{title}}</h5>
+			</div>
+			<div class="ibox-content">
+				<form class="layui-form">
+					<div class="row">
+						<div class="col-sm-6">
+
+							<div class="layui-form-item">
+								<label class="layui-form-label">类型</label>
+								<div class="layui-input-block">
+									<input type="radio" name="type" value="0" v-model="menu.type" lay-filter="type" title="目录">
+									<input type="radio" name="type" value="1" v-model="menu.type" lay-filter="type" title="菜单" checked="checked">
+									<input type="radio" name="type" value="2" v-model="menu.type" lay-filter="type" title="按钮">
+								</div>
+							</div>
+
+							<div class="layui-form-item">
+								<label class="layui-form-label">菜单名称</label>
+								<div class="layui-input-block">
+									<input type="text" class="layui-input form-control" name="menuName" lay-verify="required" autocomplete="off" placeholder="菜单名称或按钮名称"
+									    v-model="menu.name">
+								</div>
+							</div>
+
+							<div v-if="menu.type == 1" class="layui-form-item">
+								<label class="layui-form-label">菜单URL</label>
+								<div class="layui-input-block">
+									<input type="text" class="layui-input form-control" name="menuUrl" lay-verify="required" autocomplete="off" placeholder="菜单URL"
+									    v-model="menu.url">
+								</div>
+							</div>
+
+							<div v-if="menu.type == 1 || menu.type == 2" class="layui-form-item">
+								<label class="layui-form-label">授权标识</label>
+								<div class="layui-input-block">
+									<input type="text" class="layui-input form-control" name="menuPerms" v-model="menu.perms" placeholder="多个用逗号分隔，如：user:list,user:create"
+									/>
+								</div>
+							</div>
+
+							<div v-if="menu.type != 2" class="layui-form-item">
+								<label class="layui-form-label">排序号</label>
+								<div class="layui-input-block">
+									<input type="number" class="layui-input form-control" name="menuOrderNum" v-model="menu.orderNum" placeholder="排序号" />
+								</div>
+							</div>
+
+							<div v-if="menu.type != 2" class="layui-form-item">
+								<label class="layui-form-label">图标</label>
+								<div class="layui-input-block">
+									<input type="text" class="layui-input form-control" name="menuIcon" v-model="menu.icon" placeholder="菜单图标" />
+									<code style="margin-top: 4px; display: block;">获取图标：http://fontawesome.io/icons/</code>
+								</div>
+							</div>
+
+							<div class="layui-form-item">
+								<label class="layui-form-label">状态</label>
+								<div class="layui-input-block">
+									<input type="radio" name="isDelete" value="0" v-model="menu.isDelete" lay-filter="isDelete" title="正常">
+									<input type="radio" name="isDelete" value="1" v-model="menu.isDelete" lay-filter="isDelete" title="禁用">
+								</div>
+							</div>
+
+						</div>
+						<div class="col-sm-6">
+
+							<div class="layui-form-item">
+								<label class="layui-form-label">上级菜单
+									<br>
+                                    <small class="text-navy">单击选中</small>
+								</label>
+								<div class="layui-input-block">
+									<!-- 选择菜单 -->
+									<div>当前选中：<span class="text-navy">{{menu.parentName}}</span></div>
+									<div id="menuLayer">
+										<ul id="menuTree" class="ztree"></ul>
+									</div>
+								</div>
+							</div>
+
+						</div>
+					</div>
+
+					<div class="layui-form-item">
+						<div class="layui-input-block">
+							<button class="layui-btn" lay-submit="" lay-filter="submit">立即提交</button>
+							<button type="reset" class="layui-btn layui-btn-primary" @click="reload">返回</button>
+						</div>
+					</div>
+
+				</form>
+			</div>
+		</div>
+	</div>
+	#parse("sys/globalJS.html")
+	<script src="${rc.contextPath}/js/sys/menu.js?_${date.systemTime}"></script>
+</body>
+
+</html>

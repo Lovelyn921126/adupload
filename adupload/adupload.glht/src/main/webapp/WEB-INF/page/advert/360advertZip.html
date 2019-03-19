@@ -1,0 +1,705 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+	<title>广告管理-zip上传</title>
+	#parse("sys/globalCSS.html")
+	<link href="${rc.contextPath}/statics/libs/plugins/uploadify/css/uploadify.css" rel="stylesheet">
+</head>
+
+<body>
+	#parse("sys/loading.html")
+	<div id="rrapp" class="wrapper wrapper-content  animated fadeInRight" v-cloak>
+		<form class="layui-form">
+			<div class="row">
+				<div class="col-sm-4">
+
+					<div class="layui-form-item">
+						<label class="layui-form-label">网络线路</label>
+						<div class="layui-input-block">
+							<select name="netRoad" v-model="file.netRoad" lay-verify="netRoad" lay-filter="netRoad" :disabled="opType === 2 || !editable">
+								<option value="">请选择</option>
+								<!--<option value="http://img360u.fang.com/upload/zip">北方（网通线路）</option>-->
+								<option value="http://img360u.fang.com/upload/zip">南方（电信线路）</option>
+							</select>
+						</div>
+					</div>
+
+					<div class="layui-form-item">
+						<label class="layui-form-label">所属城市</label>
+						<div class="layui-input-block">
+							<select name="cityId" v-model="file.cityId" lay-verify="cityId" lay-filter="cityId" :disabled="opType === 2 || !editable">
+								<option value="">请选择</option>
+								<option v-for="city in cityList" v-bind:value="city.cityId" >{{city.name}}</option>
+							</select>
+						</div>
+					</div>
+
+					<div class="layui-form-item">
+						<label class="layui-form-label">所属频道</label>
+						<div class="layui-input-block">
+							<select name="channelId" v-model="file.channelId" lay-verify="channelId" lay-filter="channelId" :disabled="opType === 2 || !editable">
+								<option value="">请选择</option>
+								<option v-for="channel in channelList" v-bind:value="channel.id" >{{channel.name}}</option>
+							</select>
+						</div>
+					</div>
+
+					<div class="layui-form-item">
+						<label class="layui-form-label">项目名称</label>
+						<div class="layui-input-block">
+							<input type="text" class="layui-input form-control" maxlength="50" name="projectName" lay-verify="required" autocomplete="off" placeholder="项目名称"
+							 v-model="file.projectName" :disabled="!editable" />
+							<small class="text-navy" v-show="!(opType === 2)">请尽量填写有实际意义的项目名</small><br>
+							<small class="text-danger" v-show="!(opType === 2)">强烈不建议填写简单数字、字母等</small>
+						</div>
+					</div>
+
+				</div>
+				<div class="col-sm-8">
+
+					<div class="layui-form-item">
+						<label class="layui-form-label">上传文件</label>
+						<div class="layui-input-block">
+							<small class="text-navy"><i class="fa fa-exclamation-circle"></i>谷歌浏览器下,文件选取需要等待一小会儿，请耐心</small><br />
+							<small class="text-danger">选择文件后，不要忘了“立即提交”哟</small>
+							<input type="file" name="file_upload" id="file_upload" />
+							<small class="text-navy" v-show="false && showyun && (opType === 2 && !editable)"><i class="fa fa-exclamation-circle"></i>请选择不包含index.html的zip包</small>
+						</div>
+					</div>
+
+					<div class="layui-form-item">
+						<label class="layui-form-label">广告地址</label>
+						<div class="layui-input-block">
+							<div class="layui-form-mid text-navy word-wrap">{{file.sourceUrl}}</div>
+						</div>
+					</div>
+
+					<div class="layui-form-item">
+						<label class="layui-form-label">原广告文件</label>
+						<div class="layui-input-block">
+							<div class="layui-form-mid text-navy word-wrap">{{file.oriAdver}}</div>
+						</div>
+					</div>
+
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col-sm-9">
+					<div class="layui-form-item">
+						<label class="layui-form-label">720云</label>
+						<div class="layui-input-block">
+							<input type="checkbox" lay-skin="primary" lay-filter="yunUsed" v-model="showyun" :disabled="opType === 2 || !editable" />
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row" v-show="showyun">
+				<div class="col-sm-4">
+					<div class="layui-form-item">
+						<label class="layui-form-label">楼盘ID</label>
+						<div class="layui-input-block">
+							<div class="input-group">
+								<input type="text" class="layui-input input-search form-control" name="projectId" placeholder="项目ID" v-model="file.projectId"
+								 style="height: 34px;line-height: 34px;" :disabled="!editable" />
+								<div class="input-group-btn">
+									<a class="btn input-search-btn btn-primary" @click="verifynewcode" :disabled="!editable">验证</a>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="layui-form-item">
+						<label class="layui-form-label">楼盘名</label>
+						<div class="layui-input-block">
+							<span class="layui-form-mid text-navy">{{file.buildingName}}</span>
+						</div>
+					</div>
+
+					<div class="layui-form-item">
+						<label class="layui-form-label">项目类型</label>
+						<div class="layui-input-block">
+							<input type="radio" name="projectType" value="hangpai" v-model="file.projectType" lay-verify="projectType" lay-filter="projectType"
+							 title="航拍" :disabled="!editable">
+							<input type="radio" name="projectType" value="quanjing" v-model="file.projectType" lay-verify="projectType" lay-filter="projectType"
+							 title="全景" :disabled="!editable">
+						</div>
+					</div>
+
+					<div class="layui-form-item">
+						<label class="layui-form-label">项目集团</label>
+						<div class="layui-input-block">
+							<select name="group" v-model="file.group" lay-verify="group" lay-filter="group" :disabled="!editable">
+								<option value="">请选择</option>
+								<option value="newhouse">新房集团</option>
+	              <option value="esf">二手房集团</option>
+	              <option value="rent">租房集团</option>
+	              <option value="jiaju">家居集团</option>
+	              <option value="other">其他</option>
+							</select>
+						</div>
+					</div>
+				</div>
+				<div class="col-sm-6">
+					<div class="layui-form-item">
+						<label class="layui-form-label">上传图片</label>
+						<div class="layui-input-block">
+							<input type="file" id="uploadImg" name="file" class="layui-upload-file" lay-title="添加一张图片&nbsp;" :disabled="!editable">
+							<a :href="file.imageURL" class="layui-btn layui-btn-primary" target="_blank" v-show="false">预览</a>
+							<small class="text-danger">支持 *.png、*.jpg、*.swf、*.gif 格式文件</small>
+						</div>
+					</div>
+
+					<div class="layui-form-item">
+						<label class="layui-form-label">图片URL</label>
+						<div class="layui-input-block">
+							<span class="layui-form-mid text-navy word-wrap">{{file.imageURL}}</span>
+						</div>
+					</div>
+
+					<div class="layui-form-item">
+						<div class="layui-input-block">
+						    <small class="text-navy" v-show="opType === 2 && editable">当上传新图片后，才能成功修改下面的内容</small>
+						</div>
+						<label class="layui-form-label">图片描述</label>
+						<div class="layui-input-block">
+							<input type="text" class="layui-input form-control" v-model="file.description" name="description" placeholder="描述" :disabled="!editable"
+							/>
+						</div>
+					</div>
+
+					<div class="layui-form-item">
+						<label class="layui-form-label">附加功能</label>
+						<div class="layui-input-block">
+							<input type="checkbox" name="hits[pv]" lay-filter="pv" v-model="file.pv" title="人气" :disabled="!editable">
+							<input type="checkbox" name="hits[up]" lay-filter="up" v-model="file.up" title="点赞" :disabled="!editable">
+							<input type="checkbox" name="comment[savemessage]" lay-filter="sm" v-model="file.sm" title="说一说" :disabled="!editable">
+							<small class="text-navy"><a @click="comment" v-show="opType === 2 && file.sm === true">管理说一说</a></small>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="layui-form-item">
+				<div class="layui-input-block">
+					<button class="layui-btn" lay-submit="" lay-filter="zipSaveOrUpdate" :disabled="!submitable">立即提交</button>
+				</div>
+			</div>
+
+		</form>
+
+		<div>
+			<br/>
+			<fieldset>
+				<legend>上传前必读</legend>
+			</fieldset>
+			<blockquote class="layui-elem-quote" style="font-size:13px">
+				<p>
+					<span>1、通过网页上传, 单个ZIP文件大小不能超过200 MB。 如果想要上传超过200 MB的ZIP文件，可以按照以下步骤上传： </span><br>
+					<span>①将ZIP文件分成若干份ZIP文件：zip1，zip2，zip3(每个ZIP文件不能超过200M)。 </span><br>
+					<span>②先上传一个zip1，上传完成后，不要关闭页面，不要点击返回，不要更改其他选项。</span><br>
+					<span>③继续点击“选择文件”，选择zip2上传，以此类推~</span>
+				</p>
+				<p>
+					<span class="text-danger">2、请不要上传有版权和违法的内容的文件，所有因内容违法（暴力、色情等）、版权引起问题，其责任由发布者承担。</span>
+				</p>
+			</blockquote>
+		</div>
+	</div>
+	#parse("sys/globalJS.html")
+	<script type="text/javascript">
+		// 添加全局站点信息
+		var BASE_URL = '${rc.contextPath}/statics/libs/plugins/uploadify';
+	</script>
+	<script src="${rc.contextPath}/statics/libs/plugins/uploadify/js/swfobject.js"></script>
+	<script src="${rc.contextPath}/statics/libs/plugins/uploadify/js/jquery.uploadify.js"></script>
+
+	<script>
+		layui.use(['form', 'upload'], function () {
+			var form = layui.form(),
+				layer = layui.layer;
+			window.form = layui.form();
+
+			layui.upload({
+				url: '../advert/zipAdUpload/uploadImg',
+				elem: '#uploadImg',
+				method: 'post',
+				ext: 'jpg|png|gif|swf',
+				success: function (res) {
+					vm.file.imageURL = res.url;
+				}
+			});
+
+			//自定义验证规则
+			form.verify({
+				netRoad: function (value) {
+					if (value == null || value == '0' || value.length == 0) {
+						return '网络线路不能为空';
+					}
+				},
+				cityId: function (value) {
+					if (value == null || value.length == 0) {
+						return '城市不能为空';
+					}
+				},
+				channelId: function (value) {
+					if (value == null || value == '0' || value.length == 0) {
+						return '频道不能为空';
+					}
+				},
+				file: function (value) {
+					if (vm.opType === 1 || (vm.opType === 2 && vm.showyun === false)) {
+						var count = vm.uploader.uploadify('getQueueData').queueLength;
+						if (count == null || count <= 0) {
+							return '必须要有一个文件哈';
+						}
+					}
+				},
+				projectType: function (value) {
+					if (vm.showyun) {
+						if (vm.file.projectType == null || vm.file.projectType.length == 0) {
+							return '请选择项目类型';
+						}
+					}
+				},
+				group: function (value) {
+					if (vm.showyun) {
+						if (value == null || value.length == 0) {
+							return '集团不能为空';
+						}
+					}
+				}
+			});
+
+			//监听checkbox
+			form.on('checkbox(yunUsed)', function (data) {
+
+				if (data.elem.checked) {
+					vm.showyun = true;
+					vm.file.channelId = 105;
+					vm.file.channelName = "720航拍"
+				} else {
+					vm.showyun = false;
+				}
+			});
+
+			//监听checkbox
+			form.on('checkbox(pv)', function (data) {
+
+				if (data.elem.checked) {
+					vm.file.pv = true;
+				} else {
+					vm.file.pv = false;
+				}
+			});
+
+			//监听checkbox
+			form.on('checkbox(up)', function (data) {
+
+				if (data.elem.checked) {
+					vm.file.up = true;
+				} else {
+					vm.file.up = false;
+				}
+			});
+
+			//监听checkbox
+			form.on('checkbox(sm)', function (data) {
+
+				if (data.elem.checked) {
+					vm.file.sm = true;
+				} else {
+					vm.file.sm = false;
+				}
+			});
+
+			//监听select
+			form.on('select(netRoad)', function (data) {
+				vm.file.netRoad = data.value;
+			});
+			form.on('select(cityId)', function (data) {
+				vm.file.cityId = data.value;
+				vm.file.cityName = data.elem[data.elem.selectedIndex].innerText;
+			});
+			form.on('select(channelId)', function (data) {
+				vm.file.channelId = data.value;
+				vm.file.channelName = data.elem[data.elem.selectedIndex].innerText;
+				if (vm.file.channelId != 105) {
+					vm.showyun = false;
+				}
+			});
+			//监听radio
+			form.on('radio(projectType)', function (data) {
+				vm.file.projectType = data.value;
+			});
+			form.on('select(group)', function (data) {
+				vm.file.group = data.value;
+			});
+
+			//监听提交
+			form.on('submit(zipSaveOrUpdate)', function (data) {
+				vm.file.yunUsed = vm.showyun;
+				vm.file.creatable = vm.hasChanged();
+				if (vm.file.creatable) {
+					if (isNull(vm.file.imageURL) || isNull(vm.file.description)) {
+						confirm("确认不上传图片或者不填写描述吗?", function () {
+							vm.saveOrUpdate();
+						});
+						return false;
+					}
+				}
+				vm.saveOrUpdate();
+				return false;
+			});
+		});
+
+		$(function () {
+			vm.uploader.uploadify({
+				'auto': false,
+				'buttonClass': 'btn btn-primary btn-sm',
+				'buttonText': '选择文件',
+				'debug': false,
+				'fileObjName': 'file',
+				'fileSizeLimit': vm.file.locSizeName,
+				'fileTypeDesc': 'zip文件',
+				'fileTypeExts': '*.zip;',
+				'multi': false,
+				'queueSizeLimit': 1,
+				'removeCompleted': false,
+				'swf': BASE_URL + '/uploadify.swf',
+				'successTimeout': 500,
+				'scriptAccess' : 'always',
+				'onUploadError': function (file, errorCode, errorMsg, errorString) {
+					if (errorCode !== -280) {
+						toastr.error('文件[' + file.name + ']上传失败:<br/>' + errorMsg + '<br/>' + errorString, "");
+					}
+				},
+				'onUploadComplete': function (file) {
+					var queueData = vm.uploader.uploadify('getQueueData');
+					if (vm.uploader.uploadify("settings", "removeCompleted")) {
+						switch (file.filestatus) {
+							case SWFUpload.FILE_STATUS.COMPLETE:
+								setTimeout(function () {
+									if ($('#' + file.id)) {
+										queueData.queueSize -= file.size;
+										//queueData.queueLength -= 1;
+										delete queueData.files[file.id]
+										$('#' + file.id).fadeOut(500, function () {
+											$(this).remove();
+										});
+									}
+								}, settings.removeTimeout * 1000);
+								break;
+							case SWFUpload.FILE_STATUS.ERROR:
+								if (!settings.requeueErrors) {
+									setTimeout(function () {
+										if ($('#' + file.id)) {
+											queueData.queueSize -= file.size;
+											//queueData.queueLength -= 1;
+											delete queueData.files[file.id];
+											$('#' + file.id).fadeOut(500, function () {
+												$(this).remove();
+											});
+										}
+									}, settings.removeTimeout * 1000);
+								}
+								break;
+						}
+					} else {
+						//file.uploaded = true;
+						switch (file.filestatus) {
+							case SWFUpload.FILE_STATUS.COMPLETE:
+								if ($('#' + file.id)) {
+									queueData.queueSize -= file.size;
+									//queueData.queueLength -= 1;
+									delete queueData.files[file.id]
+								}
+								break;
+							case SWFUpload.FILE_STATUS.ERROR:
+								if (!settings.requeueErrors) {
+									if ($('#' + file.id)) {
+										queueData.queueSize -= file.size;
+										//queueData.queueLength -= 1;
+										delete queueData.files[file.id];
+										// $('#' + file.id).fadeOut(500, function () {
+										// 	$(this).remove();
+										// });
+									}
+								}
+								break;
+						}
+					}
+					vm.submitable = true;
+					vm.uploader.uploadify('disable', !vm.submitable);
+				},
+				'onUploadSuccess': function (file, data, response) {
+					vm.timer = setTimeout(vm.uploadSuccessCallback, 1000);
+				},
+				'onFallback': function () {
+					toastr.error("当前Flash版本不匹配，请更新您的Flash插件到最新版本,或者尝试其他浏览器.", "");
+				}
+			});
+		});
+
+		var vm = new Vue({
+			el: '#rrapp',
+			data: {
+				opType: 1, //1:新增；2:编辑
+				editable: true, // opType为2时，不起作用
+				submitable:true, // 控制提交按钮是否可用
+				cityList: {},
+				channelList: {},
+				locationList: {},
+				showyun: true,
+				title: null,
+				uploader: $("#file_upload"),
+				file: {
+					netRoad: 'http://img360u.fang.com/upload/zip',
+					serviceType: 2,
+					cityId: '',
+					cityName: '',
+					channelId: 105,
+					channelName: '720航拍',
+					projectName: '',
+					sourceId: '',
+					sourceExtension: 'ZIP',
+					sourceUrl: '',
+					oriAdver: '',
+					locSizeName: '200MB',
+					yunUsed: false,
+					projectId: '',
+					projectType: 'hangpai',
+					buildingName: '',
+					group: '',
+					creatable: false,
+					imageURL: '',
+					description: '',
+					pv: false,
+					up: false,
+					sm: false
+				},
+				old: {
+					imageURL: '',
+					description: '',
+					pv: false,
+					up: false,
+					sm: false
+				}
+			},
+			methods: {
+				hasChanged: function () {
+					return (vm.old.imageURL != vm.file.imageURL ||
+						vm.old.description != vm.file.description ||
+						vm.old.pv != vm.file.pv ||
+						vm.old.up != vm.file.up ||
+						vm.old.sm != vm.file.sm);
+				},
+				saveOld: function () {
+					this.old.imageURL = this.file.imageURL;
+					this.old.description = this.file.description;
+					this.old.pv = this.file.pv;
+					this.old.up = this.file.up;
+					this.old.sm = this.file.sm;
+				},
+				saveOrUpdate: function () {
+				    vm.submitable = false;
+				    vm.uploader.uploadify('disable', !vm.submitable);
+					vm.file.projectName = vm.file.projectName.trim();
+					vm.uploader.uploadify('settings', 'uploader', vm.uploadUrl());
+					var count = vm.uploader.uploadify('getQueueData').queueLength;
+					if (count > 0) {
+						vm.uploader.uploadify('upload', '*');
+					} else {
+						vm.doSaveOrUpdate(count);
+					}
+					vm.saveCookie();
+				},
+				uploadSuccessCallback: function () {
+					vm.doSaveOrUpdate(1);
+				},
+				doSaveOrUpdate: function (count) {
+					// if (vm.opType === 2 && !vm.editable) {
+					// 	alert('操作成功');
+					// 	return;
+					// }
+				    vm.submitable = false;
+				    vm.uploader.uploadify('disable', !vm.submitable);
+					var url = vm.opType === 1 ? (vm.editable ? "../advert/zipAdUpload/save" : "../advert/zipAdUpload/updateWithFile/") : (count > 0 ? "../advert/zipAdUpload/updateWithFile/" :
+						"../advert/zipAdUpload/update/");
+					$.ajax({
+						type: "POST",
+						url: url,
+						data: JSON.stringify(vm.file),
+						success: function (r) {
+							vm.editable = false;
+							if (r.code === 0) {
+								alert('操作成功', function (index) {
+									vm.file = r.file
+									vm.file.locSizeName = '200MB';
+								});
+							} else {
+							    vm.editable = true;
+								toastr.error(r.msg, "");
+							}
+					        vm.submitable = true;
+					        vm.uploader.uploadify('disable', !vm.submitable);
+						}
+					});
+				},
+				uploadUrl: function () {
+					var cityName = vm.file.cityName;
+					if (cityName === "漳州" || cityName === "汕头") {
+						cityName = "";
+					}
+					var link = vm.file.netRoad + "?i=" + vm.file.sourceId + "&city=" + encodeURI(cityName) + "&channel=" + encodeURI(vm.file.channelName);
+
+					if (vm.opType === 2) {
+						link = link + "&url=" + _.trimEnd(vm.file.oriAdver, '/') + ".zip";
+					}
+
+					return link;
+				},
+				saveCookie: function () {
+					$.cookie('360advertZipCityId', vm.file.cityId, { expires: 30 });
+                    $.cookie('360advertZipChannelId', vm.file.channelId, { expires: 30 });
+                    $.cookie('360advertZipNetRoad', vm.file.netRoad, { expires: 30 });
+                    $.cookie('360advertZipCityName', vm.file.cityName, { expires: 30 });
+                    $.cookie('360advertZipChannelName', vm.file.channelName, { expires: 30 });
+				},
+				getCookie: function () {
+					if($.cookie('360advertZipCityName')) {
+	                    this.file.cityId = $.cookie('360advertZipCityId') || '';
+                        this.file.channelId = this.showyun ? this.file.channelId : ($.cookie('360advertZipChannelId') || 0);
+                        this.file.netRoad = $.cookie('360advertZipNetRoad') || 'http://img360u.fang.com/upload/zip';
+                        this.file.cityName = $.cookie('360advertZipCityName') || '';
+                        this.file.channelName = $.cookie('360advertZipChannelName') || '';
+					}
+    		    },
+				verifynewcode: function () {
+					if (isNull(vm.file.cityName)) {
+						toastr.error('城市不能为空', "");
+						return false;
+					}
+					if (isNull(vm.file.projectId)) {
+						toastr.error('项目ID不能为空', "");
+						return false;
+					}
+					$.ajax({
+						type: "POST",
+						url: "../advert/zipAdUpload/verifyNewCode",
+						data: JSON.stringify({
+							newcode: vm.file.projectId,
+							city: vm.file.cityName
+						}),
+						success: function (r) {
+							if (isNull(r.text)) {
+								alert("未查到楼盘");
+								vm.file.buildingName = "";
+							} else {
+								vm.file.buildingName = r.text;
+							}
+						}
+					});
+				},
+				comment:function () {
+					parent.vm.preview(true);
+				},
+				getCityList: function () {
+					$.get("../sys/city/select", function (r) {
+						vm.cityList = r.cityList
+					});
+				},
+				getChannelList: function () {
+					$.get("../advert/sys/channel/select", function (r) {
+						vm.channelList = r.list
+					});
+				},
+				getZipGuid: function () {
+					$.get("../common/getNewGuid", function (r) {
+						vm.file.sourceId = r.guid;
+					});
+				}
+			},
+			created: function () {
+				this.getCityList();
+				this.getChannelList();
+				try {
+					this.opType = parent.vm.opType;
+					if (this.opType === 2) {
+						this.file.netRoad = 'http://img360u.fang.com/upload/zip';
+						this.file.serviceType = 2;
+						this.file.sourceExtension = 'ZIP';
+						this.file.locSizeName = '200MB';
+						this.file.oriAdver = parent.vm.file.sourceUrl.indexOf('html/index.html') > 0 ? parent.vm.file.sourceUrl.substring(0, parent.vm.file.sourceUrl.indexOf('html/index.html')) : parent.vm.file.sourceUrl;
+						this.file.cityId = parent.vm.file.cityId;
+						this.file.cityName = parent.vm.file.cityName;
+						this.file.channelId = parent.vm.file.channelId;
+						this.file.channelName = parent.vm.file.channelName;
+						this.file.projectName = parent.vm.file.projectName;
+						this.file.sourceId = parent.vm.file.sourceId;
+						this.file.sourceUrl = parent.vm.file.sourceUrl;
+						this.showyun = this.file.channelId == 105;
+						var url = this.file.sourceUrl.split('?');
+						if (this.showyun && url.length > 1 && url[1].length > 0) {
+							var params = url[1].split('&');
+							for (var el in params) {
+								var keyvalue = params[el].split('=');
+								if (keyvalue[0] == "nc") {
+									this.file.projectId = keyvalue[1];
+								} else if (keyvalue[0] == "type") {
+									this.file.projectType = keyvalue[1];
+								} else if (keyvalue[0] == "channel") {
+									this.file.group = keyvalue[1];
+								} else if (keyvalue[0] == "pv") {
+									this.file.pv = (keyvalue[1] == '1');
+								} else if (keyvalue[0] == "up") {
+									this.file.up = (keyvalue[1] == '1');
+								} else if (keyvalue[0] == "sm") {
+									this.file.sm = (keyvalue[1] == '1');
+								} else if (keyvalue[0] == "p") {
+									this.file.pv = (keyvalue[1].substr(0,1) == '1');
+									this.file.up = (keyvalue[1].substr(1,1) == '1');
+									this.file.sm = (keyvalue[1].substr(2,1) == '1');
+								}
+							}
+						}
+
+						// 记录原来的值，用来比较判断是否更改
+						this.saveOld();
+					} else {
+						this.getZipGuid();
+						this.getCookie();
+					}
+				} catch (error) {
+					console.log(error);
+					this.getZipGuid();
+				}
+			},
+			updated: function () {
+				try {
+					window.form.render();
+				} catch (error) {
+					//
+				}
+			}
+		});
+		$('.tooltip-demo').tooltip({
+			selector: "[data-toggle=tooltip]",
+			container: "body"
+		});
+		function isNull(str) {
+			if (!str) {
+				return true;
+			}
+			if (str == "") {
+				return true;
+			}
+			var regu = "^[ ]+$";
+			var re = new RegExp(regu);
+			return re.test(str);
+		}
+	</script>
+</body>
+
+</html>

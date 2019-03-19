@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+   PUBLIC "-//ibatis.apache.org//DTD Config 3.0//EN"
+"http://ibatis.apache.org/dtd/ibatis-3-config.dtd">
+
+<configuration>
+  <environments default="development">
+    <environment id="development">
+      <transactionManager type="JDBC" />
+      <!-- 配置数据库连接信息 -->
+      <dataSource type="POOLED">
+        <property name="driver" value="com.mysql.jdbc.Driver" />
+
+        <!-- <property name="url" value="jdbc:mysql://10.16.64.44:3307/glht_adupload_test" /> -->
+        <!-- <property name="username" value="gau_test_admin" /> -->
+        <!-- <property name="password" value="RvDsjr4d" /> -->
+
+        <property name="url" value="jdbc:mysql://10.16.65.37:3132/glht_adupload" />
+        <property name="username" value="glht_adupload_admin" />
+        <property name="password" value="X5LB6YyI" />
+
+      </dataSource>
+    </environment>
+  </environments>
+
+  <mappers>
+    <mapper resource="com/xiaofan/mapping/advertfile.xml" />
+    <mapper resource="com/xiaofan/mapping/syscity.xml" />
+    <mapper resource="com/xiaofan/mapping/sysuser.xml" />
+    <mapper resource="com/xiaofan/mapping/sysusertocity.xml" />
+    <mapper resource="com/xiaofan/mapping/sysusertorole.xml" />
+  </mappers>
+</configuration>

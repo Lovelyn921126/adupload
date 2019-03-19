@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.fang.dao.AdvertFileDao">
+  <select id="queryList" resultType="com.fang.entity.vo.AdvertFileVo">
+    select f.*, c.name as cityName, l.name as locationName, h.name as channelName
+    from advert_file f
+    left join sys_city c
+    on c.city_id = f.city_id
+    left join advert_location l on l.id = f.location_id
+    left join advert_channel h on h.id =
+    f.channel_id
+    <where>
+      service_type = #{serviceType}
+      <if test="projectName != null and projectName.trim() != ''">
+        and f.project_name like concat('%',#{projectName},'%')
+      </if>
+      <if test="uploadUsername != null and uploadUsername.trim() != ''">
+        and f.upload_username like concat('%', #{uploadUsername},'%')
+      </if>
+      <if test="cityId != null and cityId.trim() != ''">
+        and f.city_id in (${cityId})
+      </if>
+      <if test="startDate != null and startDate.trim() != ''">
+        and f.create_time &gt;= #{startDate}
+      </if>
+      <if test="endDate != null and endDate.trim() != ''">
+        and f.create_time &lt; #{endDate}
+      </if>
+    </where>
+  </select>
+
+  <select id="queryIdList" resultType="java.lang.String">
+    select f.id
+    from advert_file f
+    <where>
+      f.service_type = #{serviceType}
+      <if test="projectName != null and projectName.trim() != ''">
+        and f.project_name like concat('%',#{projectName},'%')
+      </if>
+      <if test="uploadUsername != null and uploadUsername.trim() != ''">
+        and f.upload_username like concat('%', #{uploadUsername},'%')
+      </if>
+      <if test="cityId != null and cityId.trim() != ''">
+        and f.city_id in (${cityId})
+      </if>
+      <if test="startDate != null and startDate.trim() != ''">
+        and f.create_time &gt;= #{startDate}
+      </if>
+      <if test="endDate != null and endDate.trim() != ''">
+        and f.create_time &lt; #{endDate}
+      </if>
+    </where>
+    order by f.${orderby}
+  </select>
+
+  <select id="queryListByIds" resultType="com.fang.entity.vo.AdvertFileVo">
+    select f.*, c.name as cityName, l.name as locationName, h.name as channelName
+    from advert_file f
+    left join sys_city c
+    on c.city_id = f.city_id
+    left join advert_location l on l.id = f.location_id
+    left join advert_channel h on h.id =
+    f.channel_id
+    <where>
+      f.id in
+      <foreach item="id" collection="list" open="(" separator="," close=")">
+        #{id}
+      </foreach>
+    </where>
+  </select>
+
+  <select id="querySelectedlist" resultType="com.fang.entity.vo.AdvertFileVo">
+    select id,source_id,project_name,source_url,source_size,source_width,source_height,create_time,source_extension
+    from
+    advert_file f
+    <where>
+      is_delete = 0 and source_id in
+      <foreach item="source_id" collection="array" open="(" separator="," close=")">
+        #{source_id}
+      </foreach>
+    </where>
+    order by f.create_time desc
+  </select>
+
+  <select id="queryObject" resultType="com.fang.entity.vo.AdvertFileVo">
+    select f.*, (select c.name from sys_city c where c.city_id = f.city_id)
+    as
+    cityName from advert_file f where f.source_id = #{value}
+  </select>
+
+  <select id="exists" parameterType="com.fang.entity.vo.AdvertFileVo" resultType="int">
+    select count(1) from advert_file
+    where source_id = #{sourceId} and is_delete = 0
+  </select>
+
+  <insert id="save" parameterType="com.fang.entity.vo.AdvertFileVo">
+    insert into advert_file
+    (
+    `id`,
+    `source_id`,
+    `project_name`,
+    `source_url`,
+    `source_extension`,
+    `source_size`,
+    `source_width`,
+    `source_height`,
+    `service_type`,
+    `city_id`,
+    `location_id`,
+    `channel_id`,
+    `acquire_info_way`,
+    `upload_user_id`,
+    `upload_username`,
+    `is_delete`,
+    `create_time`
+    )
+    values
+    (
+    #{id},
+    #{sourceId},
+    #{projectName},
+    #{sourceUrl},
+    #{sourceExtension},
+    #{sourceSize},
+    #{sourceWidth},
+    #{sourceHeight},
+    #{serviceType},
+    #{cityId},
+    #{locationId},
+    #{channelId},
+    #{acquireInfoWay},
+    #{uploadUserId},
+    #{uploadUsername},
+    #{isDelete},
+    #{createTime}
+    )
+  </insert>
+
+  <update id="update" parameterType="com.fang.entity.vo.AdvertFileVo">
+    update advert_file
+    <set>
+      <if test="projectName != null and projectName.trim() != ''">`project_name` = #{projectName},</if>
+      <if test="cityId != null">`city_id` = #{cityId},</if>
+      <if test="channelId != null">`channel_id` = #{channelId},</if>
+      <if test="isDelete != null">`is_delete` = #{isDelete},</if>
+      <if test="updateTime != null">`update_time` = #{updateTime}</if>
+    </set>
+    where source_id = #{id}
+  </update>
+
+  <update id="zipUpdate" parameterType="com.fang.entity.vo.AdvertFileVo">
+    update advert_file
+    <set>
+      <if test="projectName != null and projectName.trim() != ''">`project_name` = #{projectName},</if>
+      <if test="sourceUrl != null and sourceUrl.trim() != ''">`source_url` = #{sourceUrl},</if>
+      <if test="sourceSize != null">`source_size` = #{sourceSize},</if>
+      <if test="channelId != null">`channel_id` = #{channelId},</if>
+      <if test="updateTime != null">`update_time` = #{updateTime}</if>
+    </set>
+    where source_id = #{sourceId}
+  </update>
+
+  <update id="batchUpdate" parameterType="com.fang.entity.vo.AdvertFileVo">
+    update advert_file
+    <set>
+      <if test="projectName != null and projectName.trim() != ''">`project_name` = #{projectName},</if>
+      <if test="sourceUrl != null and sourceUrl.trim() != ''">`source_url` = #{sourceUrl},</if>
+      <if test="sourceExtension != null and sourceExtension.trim() != ''">`source_extension` = #{sourceExtension},</if>
+      <if test="sourceSize != null">`source_size` = #{sourceSize},</if>
+      <if test="sourceWidth != null">`source_width` = #{sourceWidth},</if>
+      <if test="sourceHeight != null">`source_height` = #{sourceHeight},</if>
+      <if test="cityId != null">`city_id` = #{cityId},</if>
+      <if test="locationId != null">`location_id` = #{locationId},</if>
+      <if test="channelId != null">`channel_id` = #{channelId},</if>
+      <if test="updateTime != null">`update_time` = #{updateTime}</if>
+    </set>
+    where source_id = #{sourceId}
+  </update>
+
+  <delete id="deleteBatch">
+    delete from advert_file where source_id in
+    <foreach item="id" collection="array" open="(" separator="," close=")">
+      #{id}
+    </foreach>
+  </delete>
+</mapper>

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>广告位管理</title> #parse("sys/globalCSS.html")
+</head>
+
+<body class="gray-bg">
+	#parse("sys/loading.html")
+	<div id="rrapp" class="wrapper wrapper-content  animated fadeInRight" v-cloak>
+		<div v-show="showList">
+			<div class="ibox ">
+				<div class="ibox-title">
+					<div class="grid-btn">
+						<div class="col-sm-2">
+							<input type="text" class="layui-input form-control" v-model="q.name" @keyup.enter="query" placeholder="广告位名称">
+						</div>
+						<a class="btn btn-outline btn-primary" @click="query">查询</a>
+						<a class="btn btn-primary" @click="add"><i class="fa fa-plus"></i>&nbsp;新增</a>
+						<a class="btn btn-primary" @click="update"><i class="fa fa-pencil-square-o"></i>&nbsp;修改</a>
+						<a class="btn btn-primary" @click="del"><i class="fa fa-trash-o"></i>&nbsp;删除</a>
+					</div>
+				</div>
+				<div class="ibox-content">
+					<div class="jqGrid_wrapper">
+						<table id="jqGrid"></table>
+						<div id="jqGridPager"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div v-show="!showList" class="ibox float-e-margins">
+			<div class="ibox-title">
+				<h5>{{title}}</h5>
+			</div>
+			<div class="ibox-content">
+				<form class="layui-form">
+					<div class="row">
+						<div class="col-sm-4">
+
+							<div class="layui-form-item">
+								<label class="layui-form-label">广告位名称
+							</label>
+								<div class="layui-input-block">
+									<input type="text" class="layui-input form-control" name="name" lay-verify="required" autocomplete="off" placeholder="广告位名称" v-model="location.name" />
+								</div>
+							</div>
+
+							<div class="layui-form-item">
+								<label class="layui-form-label">频道</label>
+								<div class="layui-input-block">
+									<select name="channelId" v-model="location.channelId" lay-verify="channel" lay-filter="channel">
+										<option value="">请选择</option>
+										<option v-for="channel in channelList" v-bind:value="channel.id">{{channel.name}}</option>
+									</select>
+								</div>
+							</div>
+
+							<div class="layui-form-item">
+								<label class="layui-form-label">文件大小</label>
+								<div class="layui-input-block" style="width: 60px; margin: 0px; float: right;">
+									<select name="channelId" lay-filter="units" v-model="location.units">
+										<option value="B">B</option>
+										<option value="KB">KB</option>
+										<option value="MB">MB</option>
+									</select>
+								</div>
+								<div class="layui-input-block " style="margin-right: 60px; ">
+									<input type="number" name="size " lay-verify="number " autocomplete="off " class="layui-input form-control" v-model="location.size">
+								</div>
+							</div>
+
+							<!--<div class="layui-form-item">
+							<label class="layui-form-label">文件大小</label>
+							<div class="input-group" style="left: 10px;">
+								<input type="number" class="layui-input form-control" name="size" lay-verify="number" autocomplete="off" v-model="location.size"/>
+								<div class="input-group-btn" style="width: 60px;font-size:13px;">
+									<select name="channelId" v-model="location.units" lay-filter="units">
+										<option value="B" >B</option>
+										<option value="KB" >KB</option>
+										<option value="MB" >MB</option>
+									</select>
+								</div>
+							</div>
+						</div>-->
+
+							<div class="layui-form-item ">
+								<label class="layui-form-label">宽度</label>
+								<div class="layui-input-block">
+									<input type="number" class="layui-input form-control" name="width" lay-verify="number" autocomplete="off" v-model="location.width" />
+								</div>
+							</div>
+
+							<div class="layui-form-item ">
+								<label class="layui-form-label">高度</label>
+								<div class="layui-input-block">
+									<input type="number" class="layui-input form-control" name="height" lay-verify="number" autocomplete="off" v-model="location.height" />
+								</div>
+							</div>
+
+							<div class="layui-form-item ">
+								<label class="layui-form-label">状态</label>
+								<div class="layui-input-block">
+									<input type="radio" name="isDelete " value="0" v-model="location.isDelete" lay-filter="isDelete" title="正常 ">
+									<input type="radio" name="isDelete " value="1" v-model="location.isDelete" lay-filter="isDelete" title="禁用 ">
+								</div>
+							</div>
+
+						</div>
+					</div>
+
+					<div class="layui-form-item">
+						<div class="layui-input-block">
+							<button class="layui-btn" lay-submit=" " lay-filter="submit">立即提交</button>
+							<button type="reset" class="layui-btn layui-btn-primary" @click="reload">返回</button>
+						</div>
+					</div>
+
+				</form>
+			</div>
+		</div>
+	</div>
+
+	#parse("sys/globalJS.html")
+	<script src="${rc.contextPath}/js/advert/location.js?_${date.systemTime} "></script>
+</body>
+
+</html>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<!--title={TitleString}-->
+<!--desc={DescriptionString}-->
+<!--pic={ImageUrl}-->
+<html lang="zh-cn">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=0, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>{TitleString}</title>
+    <style>
+      @-ms-viewport { width:device-width; }
+      @media only screen and (min-device-width:800px) { html { overflow:hidden; } }
+      html { height:100%; }
+      body { height:100%; overflow:hidden; margin:0; padding:0; font-family:Arial, Helvetica, sans-serif; font-size:16px; color:#FFFFFF; background-color:#000000; }
+    </style>
+  </head>
+  <body>
+    <div id="pano" style="width:100%; height:100%;"></div>
+    <script src='./krpano.js'></script>
+    <script>
+      embedpano({swf:'krpano.swf', xml:'data.xml', target:'pano', html5:'auto', mobilescale:1.0, passQueryParameters:true});
+    </script>
+<script src="//static.soufunimg.com/common_m/m_public/jslib/weixin/2.0.0/weixinshare.js" charset="utf-8"></script>
+<script type="text/javascript">
+new Weixin({
+shareTitle: '{TitleString}',
+descContent: '{DescriptionString}',
+imgUrl: '{ImageUrl}',
+lineLink: window.location
+});
+//统计代码
+var _dctc=_dctc || {}; 
+_dctc._account=_dctc._account ||['UA-24140496-1']; 
+_dctc.isNorth = _dctc.isNorth || 'Y'; 
+_dctc.bid = '1'; 
+ (function() { 
+var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true; 
+script.src = 'http://js.soufunimg.com/count/load.min.js'; 
+var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s); 
+})();
+</script>
+</body>
+</html>

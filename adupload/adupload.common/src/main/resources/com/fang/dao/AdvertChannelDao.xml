@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.fang.dao.AdvertChannelDao">
+
+  <!-- 广告频道查询 -->
+  <select id="queryList" parameterType="map" resultType="com.fang.entity.vo.AdvertChannelVo">
+    select id,name,remark,is_delete,create_time,update_time
+    from advert_channel
+    <where>
+      <if test="name != null and name.trim() != ''">
+        and name like concat('%',#{name},'%')
+      </if>
+    </where>
+  </select>
+
+  <!-- 下拉列表 -->
+  <select id="select" resultType="com.fang.entity.vo.AdvertChannelVo">
+    select id,name,remark,is_delete,create_time,update_time
+    from advert_channel where
+    is_delete=0
+  </select>
+
+
+  <!-- 根据name查询 -->
+  <select id="getByName" parameterType="string" resultType="com.fang.entity.vo.AdvertChannelVo">
+    select
+    id,name,remark,is_delete,create_time,update_time
+    from advert_channel
+    where name = #{value}
+  </select>
+
+  <!-- 根据id查询 -->
+  <select id="queryObject" parameterType="integer" resultType="com.fang.entity.vo.AdvertChannelVo">
+    select
+    id,name,remark,is_delete,create_time,update_time
+    from advert_channel
+    where id = #{value}
+  </select>
+
+  <!-- 新增频道 -->
+  <insert id="save" parameterType="com.fang.entity.vo.AdvertChannelVo">
+    insert into advert_channel
+    (
+    `name`,
+    `remark`,
+    `is_delete`,
+    `create_time`
+    )
+    values
+    (
+    #{name},
+    #{remark},
+    #{isDelete},
+    #{createTime}
+    )
+  </insert>
+
+  <!-- 更新频道 -->
+  <update id="update" parameterType="com.fang.entity.vo.AdvertChannelVo">
+    update advert_channel
+    <set>
+      <if test="name != null and name.trim() != ''">`name` = #{name},</if>
+      <if test="remark != null">`remark` = #{remark},</if>
+      <if test="isDelete != null">`is_delete` = #{isDelete},</if>
+      <if test="updateTime != null">`update_time` = #{updateTime},</if>
+    </set>
+    where id = #{id}
+  </update>
+
+  <!-- 删除频道 -->
+  <delete id="deleteBatch">
+    delete from advert_channel
+    where id in
+    <foreach item="id" collection="array" open="(" separator="," close=")">
+      #{id}
+    </foreach>
+  </delete>
+</mapper>

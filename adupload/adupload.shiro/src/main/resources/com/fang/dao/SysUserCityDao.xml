@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.fang.dao.SysUserCityDao">
+
+  <!-- 查询用户权限内的城市ID -->
+  <select id="queryCityIdList" resultType="Integer">
+    select city_id from sys_user_city where user_id = #{value}
+  </select>
+
+  <!-- 删除用户的城市 -->
+  <delete id="delete">
+    delete from sys_user_city where user_id = #{value}
+  </delete>
+
+  <!-- 保存 -->
+  <insert id="save">
+    insert into sys_user_city (`id`, `user_id`, `city_id` ) values
+    <foreach collection="list" item="item" index="index" separator=",">
+      (
+      #{item.id},
+      #{item.userId},
+      #{item.cityId}
+      )
+    </foreach>
+  </insert>
+
+</mapper>

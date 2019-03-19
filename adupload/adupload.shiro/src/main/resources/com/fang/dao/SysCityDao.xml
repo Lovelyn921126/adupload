@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.fang.dao.SysCityDao">
+
+  <!-- 查询所有可用的城市 -->
+  <select id="select" resultType="com.fang.entity.SysCity">
+    select sc.* from sys_city sc
+    <where>
+      sc.is_delete = 0
+    </where>
+  </select>
+
+  <!-- 城市列表 -->
+  <select id="queryList" resultType="com.fang.entity.SysCity">
+    select c.* from sys_city c
+    <where>
+      <if test="cityName != null and cityName.trim() != ''">
+        and c.name like concat('%',#{cityName},'%')
+      </if>
+    </where>
+  </select>
+
+  <!-- 指定城市 -->
+  <select id="queryObject" resultType="com.fang.entity.SysCity">
+    select c.* from sys_city c where c.city_id = #{value}
+  </select>
+    <!-- 根据名次查询指定城市 -->
+  <select id="queryObjectByName" resultType="com.fang.entity.SysCity">
+    select c.* from sys_city c where c.name = #{value}
+  </select>
+
+  <!-- 保存城市 -->
+  <insert id="save" parameterType="com.fang.entity.SysCity">
+    insert into sys_city
+    (
+     `name`,
+     `code`,
+     `remark`,
+     `is_delete`
+    )
+    values
+    (
+     #{name},
+     #{code},
+     #{remark},
+     #{isDelete}
+    )
+  </insert>
+  <!-- 更新城市 -->
+  <update id="update" parameterType="com.fang.entity.SysCity">
+    update sys_city
+    <set>
+      <if test="name != null and name.trim() != ''">`name` = #{name},</if>
+      <if test="code != null and code.trim() != ''">`code` = #{code},</if>
+      <if test="true">`remark` = #{remark},</if>
+      <if test="isDelete != null">`is_delete` = #{isDelete},</if>
+    </set>
+    where city_id = #{cityId}
+  </update>
+
+  <delete id="deleteBatch">
+    delete from sys_city where city_id in
+    <foreach item="id" collection="array" open="(" separator="," close=")">
+      #{id}
+    </foreach>
+  </delete>
+
+  <select id="getAllCityCount" resultType="int">
+  select count(1) from sys_city
+  </select>
+</mapper>

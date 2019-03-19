@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.fang.dao.AdvertCommentDao">
+
+  <!-- 城市列表 -->
+  <select id="queryList" resultType="com.fang.entity.AdvertComment">
+    select ac.* from advert_comment ac
+    <where>
+      <!-- <if test="panoid != null and panoid.trim() != ''"> -->
+        ac.panoid = #{panoid}
+      <!-- </if> -->
+      <if test="scene != null and scene.trim() != ''">
+        and ac.scene = #{scene}
+      </if>
+    </where>
+  </select>
+
+  <!-- 保存城市 -->
+  <insert id="saveBack" parameterType="com.fang.entity.AdvertComment">
+    insert into advert_comment
+    (
+    `id`,
+    `panoid`,
+    `message`,
+    `userid`,
+    `avatar`,
+    `ath`,
+    `atv`,
+    `scene`,
+    `is_delete`,
+    `create_time`
+    )
+    values
+    (
+    #{id},
+    #{panoid},
+    #{content},
+    #{userid},
+    #{avatar},
+    #{ath},
+    #{atv},
+    #{scene},
+    #{isDelete},
+    #{createTime}
+    )
+  </insert>
+
+  <delete id="deleteBatch">
+    delete from advert_comment where id in
+    <foreach item="id" collection="array" open="(" separator="," close=")">
+      #{id}
+    </foreach>
+  </delete>
+</mapper>

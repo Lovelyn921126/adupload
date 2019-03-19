@@ -1,0 +1,49 @@
+1.项目存放地址：
+	管理后台：/www/webdev/glht.adupload.fang.com
+	接口：/www/webdev/jk.adupload.fang.com
+
+2.日志文件地址：
+	访问日志：/indexdata/aduploadlogs/access
+	程序内部日志：/indexdata/aduploadlogs/adupload
+	resin日志：/indexdata/aduploadlogs/resin
+	
+3.resin地址：/usr/local/resin
+4.别名配置：/etc/profile文件 如果有更改最后别忘了执行source /etc/profile 让环境生效
+alias stopadjk='sudo /etc/init.d/jk.adupload.fang.com stop'
+alias startadjk='sudo /etc/init.d/jk.adupload.fang.com start'
+alias restartadjk='sudo /etc/init.d/jk.adupload.fang.com restart'
+
+alias stopadglht='sudo /etc/init.d/glht.adupload.fang.com stop'
+alias startadglht='sudo /etc/init.d/glht.adupload.fang.com start'
+alias restartadglht='sudo /etc/init.d/glht.adupload.fang.com restart'
+
+alias toadlog='cd /indexdata/aduploadlogs'
+alias toresinconf='cd /usr/local/resin/conf'
+
+alias toadjk='cd /www/webdev/jk.adupload.fang.com'
+alias toadglht='cd /www/webdev/glht.adupload.fang.com'
+
+alias netstatjava='sudo netstat -tnlp|grep java'
+
+5.上线流程
+	①pom.xml所在目录执行：
+	mvn clean package -P publish 或
+	mvn clean package -P test
+	
+	②上下线工具地址：http://online.light.fang.com  用户名:  passport  密码:  soufun.com
+	对相对应站点下线，10.16.134.11、10.16.134.12
+	单台下线，更新程序
+	
+	③先停止resin，执行 stopadjk 或 stopadglht
+	④替换项目目录下的war包
+	⑤启动resin，执行 startadjk 或 startadglht
+	⑥执行toadlog，看各项日志是否显示启动无异常
+	⑦查看对应占用java的端口是否都已起来 netstatjava
+	⑧硬解查看站点，加端口号访问站点，看各项业务是否正常
+	⑨上下线工具中上线对应的机器
+	10看zabbix上，这台服务器内网网卡流量，是否恢复
+
+6.resin启动文件
+	resin配置文件
+	
+	详见文件夹中

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+"-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+  <session-factory>
+    <!--数据库信息 -->
+    <property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
+    <!-- <property name="hibernate.connection.url">jdbc:mysql://10.2.107.169:3121/soufunad_test?allowMultiQueries=true&useUnicode=true&characterEncoding=UTF-8</property> -->
+    <property name="hibernate.connection.url">jdbc:mysql:///soufunad_test</property>
+    <property name="hibernate.connection.username">root</property>
+    <property name="hibernate.connection.password">123456</property>
+    <!--hibernate可选项 -->
+    <property name="hibernate.dialect">
+      org.hibernate.dialect.MySQLDialect
+    </property>
+    <property name="hbm2ddl.auto">validate</property>
+    <!-- hbm文件 -->
+    <mapping resource="com/fang/pojoformysql/AdvertFile.hbm.xml" />
+  </session-factory>
+</hibernate-configuration>

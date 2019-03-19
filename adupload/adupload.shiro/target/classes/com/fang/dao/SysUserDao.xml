@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.fang.dao.SysUserDao">
+
+  <select id="queryObject" resultType="com.fang.entity.vo.SysUserVo">
+    select * from sys_user where user_id = #{value}
+  </select>
+
+  <!-- 查询用户信息 -->
+  <select id="queryByUserName" resultType="com.fang.entity.SysUser" parameterType="String">
+    select * from sys_user where
+    username = #{username}
+  </select>
+
+  <!-- 判断用户是不是超级管理员 -->
+  <select id="querySuperOrNot" resultType="int" parameterType="String">
+    select type from sys_user where user_id = #{userid}
+  </select>
+
+  <!-- 查询用户的所有菜单ID -->
+  <select id="queryAllMenuId" resultType="String">
+    select distinct rm.menu_id from sys_user_role ur
+    LEFT JOIN sys_role_menu
+    rm on ur.role_id = rm.role_id
+    where ur.user_id = #{userId}
+  </select>
+
+  <!-- 查询用户的所有权限 -->
+  <select id="queryAllPerms" resultType="string">
+    select m.perms from sys_user_role ur
+    LEFT JOIN sys_role_menu rm on
+    ur.role_id = rm.role_id
+    LEFT JOIN sys_menu m on rm.menu_id =
+    m.menu_id
+    where ur.user_id = #{userId}
+  </select>
+
+  <!-- 检索用户列表 -->
+  <select id="queryList" resultType="com.fang.entity.vo.SysUserVo">
+    select distinct su.*,sg.name as groupName from sys_user su
+    left join sys_group sg
+    on su.group_id = sg.group_id
+    <if test="cityid != null">
+      inner join sys_user_city suc on
+      su.user_id = suc.user_id
+    </if>
+    <where>
+      <if test="username != null and username.trim() != ''">
+        and su.username like concat('%',#{username},'%')
+      </if>
+      <if test="createUserId != null and createUserId.trim() != ''">
+        and su.create_user_id = #{createUserId}
+      </if>
+      <if test="cityid != null">
+        and suc.city_id in
+        <foreach item="item" collection="cityid" open="(" separator="," close=")">
+          #{item}
+        </foreach>
+      </if>
+    </where>
+  </select>
+
+  <!-- 保存用户 -->
+  <insert id="save" parameterType="com.fang.entity.SysUser">
+    insert into sys_user
+    (
+    `user_id`,
+    `username`,
+    `name`,
+    `mobile`,
+    `type`,
+    `group_id`,
+    `is_delete`,
+    `create_user_id`,
+    `create_time`
+    )
+    values
+    (
+    #{userId},
+    #{username},
+    #{name},
+    #{mobile},
+    #{type},
+    #{groupId},
+    #{isDelete},
+    #{createUserId},
+    #{createTime}
+    )
+  </insert>
+
+  <!-- 更新用户 -->
+  <update id="update" parameterType="com.fang.entity.SysUser">
+    update sys_user
+    <set>
+      <if test="username != null">`username` = #{username}, </if>
+      <if test="name != null">`name` = #{name}, </if>
+      <if test="mobile != null">`mobile` = #{mobile}, </if>
+      <if test="groupId != null">`group_id` = #{groupId}, </if>
+      <if test="isDelete != null">`is_delete` = #{isDelete}, </if>
+      <if test="updateTime != null">`update_time` = #{updateTime}</if>
+    </set>
+    where user_id = #{userId}
+    <if test="createUserId != null">
+      and `create_user_id` = #{createUserId}
+    </if>
+  </update>
+
+  <!-- 更新用户的创建者 -->
+  <update id="changecreateuser" parameterType="com.fang.entity.SysUser">
+    update sys_user
+    <set>
+      `create_user_id` = #{createUserId},
+      <if test="updateTime != null">`update_time` = #{updateTime}</if>
+    </set>
+    where user_id = #{userId}
+  </update>
+
+  <!-- 删除用户 -->
+  <delete id="deleteBatch">
+    delete from sys_user where user_id in
+    <foreach item="userId" collection="array" open="(" separator="," close=")">
+      #{userId}
+    </foreach>
+    ;
+    delete from sys_user_role where user_id in
+    <foreach item="userId" collection="array" open="(" separator="," close=")">
+      #{userId}
+    </foreach>
+    ;
+    delete from sys_user_city where user_id in
+    <foreach item="userId" collection="array" open="(" separator="," close=")">
+      #{userId}
+    </foreach>
+  </delete>
+
+</mapper>

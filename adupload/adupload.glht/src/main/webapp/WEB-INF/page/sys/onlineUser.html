@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>菜单管理</title> #parse("sys/globalCSS.html")
+</head>
+
+<body class="gray-bg">
+	#parse("sys/loading.html")
+	<div id="rrapp" class="wrapper wrapper-content  animated fadeInRight"
+		v-cloak>
+
+			<div class="ibox ">
+				<div class="ibox-title">
+					<div class="grid-btn">
+					<div class="col-sm-2">
+              <input type="text" class="layui-input form-control"  lay-verify="role" v-model="q.username" @keyup.enter="query" placeholder="用户名">
+          </div>
+						#if($shiro.hasPermission("sys:online:list")) <a
+							class="btn btn-outline btn-primary" @click="query">查询</a>
+							#end
+					</div>
+				</div>
+				<div class="ibox-content">
+					<div class="jqGrid_wrapper">
+						<table id="jqGrid"></table>
+						<div id="jqGridPager"></div>
+					</div>
+				</div>
+			</div>
+
+
+	</div>
+	#parse("sys/globalJS.html")
+	<script src="${rc.contextPath}/js/sys/online.js?_${date.systemTime}" t></script>
+</body>
+
+</html>

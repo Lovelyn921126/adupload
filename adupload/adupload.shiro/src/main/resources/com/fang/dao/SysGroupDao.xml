@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.fang.dao.SysGroupDao">
+
+  <!-- 查询所有可用的集团 -->
+  <select id="queryList" resultType="com.fang.entity.SysGroup">
+    select sg.* from sys_group sg
+    <where>
+
+      <if test="groupId != null">
+        and (sg.group_id = #{groupId} or sg.parent_id = #{groupId} )
+      </if>
+    </where>
+  </select>
+     <select id="queryObject" resultType="com.fang.entity.SysGroup">
+    select * from sys_group where group_id = #{value}
+  </select>
+  <insert id="save" parameterType="com.fang.entity.vo.SysGroupVo" >
+  insert into sys_group
+    (
+    `group_id`,
+    `parent_id`,
+    `name`,
+    `order_num`,
+    `is_delete`,
+    `create_time`
+    )
+    values
+    (
+    #{groupId},
+    #{parentId},
+    #{name},
+    #{orderNum},
+    #{isDelete},
+    #{createTime}
+    )
+
+  </insert>
+  <update id="update" parameterType="com.fang.entity.vo.SysGroupVo">
+   update sys_group
+    <set>
+      `parent_id` = #{parentId},
+      <if test="name != null">`name` = #{name}, </if>
+      <if test="orderNum != null">`order_num` = #{orderNum},</if>
+      <if test="isDelete != null">`is_delete` = #{isDelete},</if>
+      <if test="updateTime != null">`update_time` = #{updateTime}</if>
+    </set>
+    where group_id = #{groupId}
+  </update>
+  <delete id="deleteBatch">
+    delete from sys_group where group_id in
+    <foreach item="groupId" collection="array" open="(" separator="," close=")">
+      #{groupId}
+    </foreach>
+  </delete>
+</mapper>

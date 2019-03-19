@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<!--title={TitleString}-->
+<!--desc={DescriptionString}-->
+<!--pic={ImageUrl}-->
+<html lang="zh-cn">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=0, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>{TitleString}</title>
+    <meta name="description" content="{DescriptionString}"/>
+    <style>
+      @-ms-viewport { width:device-width; }
+      @media only screen and (min-device-width:800px) { html { overflow:hidden; } }
+      html { height:100%; }
+      body { height:100%; overflow:hidden; margin:0; padding:0; }
+    </style>
+    
+  </head>
+  <body>
+    <div id="root"></div>
+    <script src='//static.soufunimg.com/upload/krpano/720yun/krpano.js'></script>
+    <script src='//static.soufunimg.com/upload/krpano/720yun/offline.js'></script>
+    <script src='//static.soufunimg.com/upload/krpano/720yun/viewer.js'></script>
+    <script src="//static.soufunimg.com/common_m/m_public/jslib/jquery/3.1.1/jquery.js"></script>
+    <script type="text/javascript">
+    var pageConfig= {}; 
+    pageConfig.panoid = '{panoid}';// 全景ID
+    pageConfig.message = '{message}';//说一说功能,如无则为空
+    pageConfig.pv = '{pv}';//人气功能,如无则为空
+    pageConfig.up = '{up}';//点赞功能,如无则为空
+
+    //统计代码
+    var _dctc=_dctc || {}; 
+    _dctc._account=_dctc._account ||['UA-24140496-1']; 
+    _dctc.isNorth = _dctc.isNorth || 'Y'; 
+    _dctc.bid = '1'; 
+    var wxconfig = {
+      shareTitle: '{TitleString}',
+      descContent: '{DescriptionString}',
+      imgUrl: '{ImageUrl}',
+      lineLink: '{PanoUrl}'
+    };
+    </script>
+    <script src='//static.soufunimg.com/upload/krpano/720yun/pvup.js'></script>
+    <soufunclient id="soufunclient" class="hide">0${DescriptionString}${PanoUrl}${ImageUrl}</soufunclient>
+</body>
+</html>

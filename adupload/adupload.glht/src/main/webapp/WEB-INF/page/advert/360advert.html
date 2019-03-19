@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>360全景广告管理</title>
+	#parse("sys/globalCSS.html")
+</head>
+
+<body class="gray-bg">
+	#parse("sys/loading.html")
+	<div id="rrapp" class="wrapper wrapper-content  animated fadeInRight" v-cloak>
+		<div class="ibox ">
+			<div class="ibox-title">
+				<div class="grid-btn">
+
+					<form class="layui-form">
+						<div class="layui-form-item sm">
+
+							<div class="layui-inline">
+								<label class="layui-form-label">日期范围</label>
+								<div class="layui-input-inline">
+									<input type="text" class="layui-input form-control" id="startDate" name="startDate" placeholder="开始日">
+								</div>
+								<div class="layui-input-inline">
+									<input type="text" class="layui-input form-control" id="endDate" name="endDate" placeholder="结束日">
+								</div>
+							</div>
+
+							<div class="layui-inline">
+								<label class="layui-form-label">城市</label>
+								<div class="layui-input-inline">
+									<select name="cityId" v-model="q.cityId" lay-filter="citySearch">
+										<option value="">全部</option>
+										<option v-for="city in cityList" v-bind:value="city.cityId">{{city.name}}</option>
+									</select>
+								</div>
+							</div>
+
+							<div class="layui-inline">
+								<label class="layui-form-label">项目名称</label>
+								<div class="layui-input-inline">
+									<input type="text" class="layui-input form-control" name="projectName" v-model="q.projectName">
+								</div>
+							</div>
+
+							<div class="layui-inline">
+								<label class="layui-form-label">上传人员</label>
+								<div class="layui-input-inline">
+									<input type="email" class="layui-input form-control" name="uploadUsername" placeholder="邮箱" v-model="q.uploadUsername" :disabled="q.myOwn">
+								</div>
+							</div>
+
+							<div class="layui-inline tooltip-demo">
+                                <input type="checkbox" :checked="q.myOwn" lay-skin="switch" lay-filter="switchMyOwn" lay-text="我的|所有" >
+								<a class="btn btn-outline btn-sm btn-primary" lay-submit="" lay-filter="search">查询</a> #if($shiro.hasPermission("advert:advert:zipsave"))
+								<a class="btn btn-sm btn-primary" @click="zipAdd" data-toggle="tooltip" data-placement="top" title="只支持zip格式压缩包上传"><i class="fa fa-plus"></i>&nbsp;ZIP上传</a> #end #if($shiro.hasPermission("advert:advert:batchsave"))
+								<a class="btn btn-sm btn-primary" @click="batchAdd" data-toggle="tooltip" data-placement="top" title="图片格式文件批量上传"><i class="fa fa-plus"></i>&nbsp;图片批量上传</a> #end
+								<!--#if($shiro.hasPermission("advert:advert:update"))
+	                      <a class="btn btn-sm btn-primary" @click="update"><i class="fa fa-pencil-square-o"></i>&nbsp;修改</a>                                
+	                  #end-->
+							</div>
+
+						</div>
+					</form>
+				</div>
+			</div>
+			<div class="ibox-content">
+				<div class="jqGrid_wrapper">
+					<table id="jqGrid"></table>
+					<div id="jqGridPager"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	#parse("sys/globalJS.html")
+	<script src="${rc.contextPath}/statics/libs/plugins/uploadify/js/swfobject.js"></script>
+	<script src="${rc.contextPath}/js/advert/360advert.js?_${date.systemTime}"></script>
+</body>
+
+</html>

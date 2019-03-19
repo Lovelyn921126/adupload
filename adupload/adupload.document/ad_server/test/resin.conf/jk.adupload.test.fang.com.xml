@@ -1,0 +1,123 @@
+<!--
+   - Resin 4.0 configuration file.
+  -->
+<resin xmlns="http://caucho.com/ns/resin"
+       xmlns:resin="urn:java:com.caucho.resin">
+
+  <!-- property-based Resin configuration -->
+  <resin:properties path="${__DIR__}/resin.properties" optional="true"/>
+  <resin:properties path="cloud:/resin.properties"
+                    optional="true" recover="true"/>
+
+
+  <resin:if test="${properties_import_url}">
+    <resin:properties path="${properties_import_url}"
+                      optional="true" recover="true"/>
+  </resin:if>
+
+  <!-- Logging configuration for the JDK logging API -->
+  <log-handler name="" level="all" path="/indexdata/aduploadlogs/resin/jvm-adupload-jk.log"
+               timestamp="[%y-%m-%d %H:%M:%S.%s]"
+               rollover-period="1D"
+               archive-format="jvm-adupload-jk-%Y%m%d.log.gz"
+               format=" {${thread}} ${log.message}" />
+
+  <!--
+     - level='info' for production
+     - 'fine' or 'finer' for development and troubleshooting
+    -->
+  <logger name="" level="${log_level?:'info'}"/>
+  <logger name="com.caucho.java" level="config"/>
+  <logger name="com.caucho.loader" level="config"/>
+
+  <character-encoding>utf-8</character-encoding>
+
+  <!--
+     - Default configuration applied to all clusters, including
+     - HTTP, HTTPS, and /resin-admin configuration.
+    -->
+  <resin:import path="${__DIR__}/cluster-default.xml"/>
+
+  <!--
+     - health configuration
+    -->
+  <resin:import path="${__DIR__}/health.xml"/>
+
+
+  <!--
+     - Remote management requires at least one enabled admin user.
+    -->
+  <resin:AdminAuthenticator>
+    <user name="${admin_user}" password="${admin_password}"/>
+
+    <resin:import path="${__DIR__}/admin-users.xml" optional="true"/>
+    <resin:import path="cloud:/admin-users.xml" optional="true" recover="true"/>
+  </resin:AdminAuthenticator>
+
+  <!--
+     - For clustered systems, create a password in as cluster_system_key
+    -->
+  <cluster-system-key>${cluster_system_key}</cluster-system-key>
+
+  <!--
+     - For production sites, change dependency-check-interval to something
+     - like 600s, so it only checks for updates every 10 minutes.
+    -->
+  <dependency-check-interval>${dependency_check_interval?:'1h'}</dependency-check-interval>
+
+  <!-- For resin.properties dynamic cluster joining -->
+  <home-cluster>${home_cluster}</home-cluster>
+  <home-server>${home_server}</home-server>
+  <elastic-server>${elastic_server}</elastic-server>
+  <elastic-dns>${elastic_dns}</elastic-dns>
+
+  <!--
+     - Configures the main application cluster.  Load-balancing configurations
+     - will also have a web cluster.
+    -->
+  <cluster id="adupload-jk">
+    <server-default>
+      <jvm-arg>-Xms1024m</jvm-arg>
+      <jvm-arg>-Xmx1024m</jvm-arg>
+      <jvm-arg>-Xss256k</jvm-arg>
+      <jvm-arg>-XX:PermSize=128m</jvm-arg>
+      <jvm-arg>-XX:MaxPermSize=128m</jvm-arg>
+      <jvm-arg>-XX:+PrintClassHistogram</jvm-arg>
+      <jvm-arg>-XX:+PrintGCDetails</jvm-arg>
+      <jvm-arg>-XX:+PrintGCTimeStamps</jvm-arg>
+      <jvm-arg>-XX:+PrintGCDateStamps</jvm-arg>
+      <jvm-arg>-XX:+PrintHeapAtGC</jvm-arg>
+      <jvm-arg>-XX:+PrintTenuringDistribution</jvm-arg>
+      <jvm-arg>-Xloggc:/indexdata/aduploadlogs/resin/gc.adupload.jk.log</jvm-arg>
+    </server-default>
+
+    <!-- define the servers in the cluster -->
+    <server-multi id-prefix="adupload-jk-" address-list="${adupload-jk_servers}" port="6811" watchdog-port="6611"/>
+
+    <host-default>
+      <web-app-deploy path="/www/webdev/jk.adupload.fang.com"
+                      expand-preserve-fileset="WEB-INF/work/**"
+                      multiversion-routing="${webapp_multiversion_routing}"
+                      path-suffix="${elastic_webapp?resin.id:''}"/>
+    </host-default>
+
+    <host id="jk.adupload.test.fang.com" root-directory="/www/webdev/jk.adupload.fang.com">
+      <web-app id="/" root-directory="adupload.jk"/>
+
+      <!--<stdout-log path-format="/indexdata/aduploadlogs/resin/stdout.adupload.jk.log.%Y%m%d%H"
+                  rollover-period="1D"
+                  timestamp="[%H:%M:%S.%s] " />
+
+      <stderr-log path-format="/indexdata/aduploadlogs/resin/stderr.adupload.jk.log.%Y%m%d"
+                  rollover-period="1D"
+                  timestamp="[%H:%M:%S.%s] " />-->
+
+      <access-log path="/indexdata/aduploadlogs/access/jk.adupload.fang.com-access.log"
+                  format='%D %h %l %u %t "%r" %s %b "%{Referer}i" "%{User-Agent}i"'
+                  archive-format="jk.adupload.fang.com-access-%Y%m%d.log.gz"
+                  rollover-period="1D"/>
+    </host>
+
+  </cluster>
+  <system-property profiles.active="test"></system-property>
+</resin>

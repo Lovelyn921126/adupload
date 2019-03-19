@@ -1,0 +1,115 @@
+一。普通ZIP上传
+	1.接口
+	北方:http://imgdnu.fang.com/upload/zip
+	南方:http://imgdu.fang.com/upload/zip
+	
+	2.上传实例:
+	http://imgdnu.fang.com/upload/zip?i=b1a792bda6c5447bb72319056f261885&city=%E5%AE%89%E5%BA%B7&channel=%E5%AE%B6%E5%B1%85%E8%AE%BA%E5%9D%9B
+	参数:
+		i:ID，一般为guid
+		city:城市,UTF-8编码
+		channel:频道,UTF-8编码
+		file:上传的ZIP文件
+	返回：
+		上传时候接口无返回值，需要再次发送请求获得上传文件信息,带着除了file参数之外的参数。
+	*接口大小限制:80M
+	
+	3.更新实例：
+	http://imgdnu.fang.com/upload/zip?i=b1a792bda6c5447bb72319056f261885&city=%E5%AE%89%E5%BA%B7&channel=%E5%AE%B6%E5%B1%85%E8%AE%BA%E5%9D%9B&url=http://imgd5.soufunimg.com/2017/07/04/nanchang/gebz/24df644f4c6344bb8579f8c303bde150.zip
+	参数:
+		i:ID，一般为guid
+		city:城市,UTF-8编码
+		channel:频道,UTF-8编码
+		file:上传的ZIP文件
+		url:首次上传时返回的参数中的原始文件地址，去掉最后的“/”,加上“.zip”
+	返回：
+		文件信息
+	
+二。360全景ZIP上传
+	1.上传接口
+	北方:http://img360u.fang.com/upload/zip
+	南方:http://img360u.fang.com/upload/zip
+	
+	2.上传实例:
+	同普通zip
+	
+	3.更新实例：
+	同普通zip
+	
+	*特殊处理:
+		channel=720航拍,生成URL特殊处理。
+		
+三。普通图片文件批量上传
+	1.上传接口
+	北方:http://imgdu.fang.com/upload/imgd2
+	南方:http://imgdu.fang.com/upload/imgd2
+	
+	2.上传实例:
+	http://imgdu.fang.com/upload/imgd2?city=kj25
+	参数:
+		city:kj25,kj是固定字母，25表示大小限制。是上传者在页面选择的
+		file:图片文件
+		
+	3.更新实例：
+	http://imgdu.fang.com/upload/imgd2?city=kj25&url=http://img360.fang.com/2017/07/04/jm/static/9b1d0592084f4877bd900983c466f5d6.zip
+		city:kj25,kj是固定字母，25表示大小限制。是上传者在页面选择的
+		file:图片文件
+		url:首次上传时返回的参数中的原始文件地址，去掉最后的“/”,加上“.zip”
+	
+	说明:
+		图片大小和宽高限制根据频道下的广告位来定，如果无限制可手动选择。
+		上传后显示:
+			如果宽高比不符合要求，红字显示。
+	
+四。360全景图片文件上传
+
+	1.上传接口
+	北方:http://img360u.fang.com/upload/pic
+	南方:http://img360u.fang.com/upload/pic
+	
+	2.上传实例:
+	http://img360u.fang.com/upload/pic?city=%E5%B8%B8%E7%86%9F
+	参数：
+		city:城市名称，UTF8编码
+		file:文件
+		
+	3.更新实例：
+	http://img360u.fang.com/upload/pic?city=%E5%B8%B8%E7%86%9F&url=http://imgd3.soufunimg.com/2017/07/04/220k/9adc83621f13435daead6df900db936d.jpg
+	参数：
+		city:城市名称，UTF8编码
+		file:文件
+		url：之前上传返回的图片地址
+		
+五。CDN缓存清理
+	1.清理接口
+		http://cleancache.fang.com/post.php
+		参数:
+			url:完整的文件URL
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
+
+
+
+
+	

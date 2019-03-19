@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+                                         "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+ <session-factory>
+  <!-- 数据库信息 -->
+  <property name="hibernate.connection.driver_class">net.sourceforge.jtds.jdbc.Driver</property>
+  <property name="hibernate.connection.url">jdbc:jtds:sqlserver://220.181.149.60:1433/SouFunAD</property>
+  <property name="hibernate.connection.username">soufunad_w</property>
+  <property name="hibernate.connection.password">c#9hP27qmg</property>
+  <property name="hibernate.dialect">org.hibernate.dialect.SQLServerDialect</property>
+  <!--hibernate可选项 -->
+  <property name="hbm2ddl.auto">validate</property>
+  <!-- hbm文件 -->
+  <mapping resource="com/fang/pojoformssql/SlFile.hbm.xml"/>
+  <mapping resource="com/fang/pojoformssql/SlSysCity.hbm.xml"/>
+  <mapping resource="com/fang/pojoformssql/SlSysUser.hbm.xml"/>
+ </session-factory>
+</hibernate-configuration>

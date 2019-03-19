@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd">
+
+  <bean id="sysLogService" class="com.fang.service.impl.SysLogServiceImpl" />
+  <bean id="sysMenuService" class="com.fang.service.impl.SysMenuServiceImpl" />
+  <bean id="sysRoleMenuService" class="com.fang.service.impl.SysRoleMenuServiceImpl" />
+  <bean id="sysRoleService" class="com.fang.service.impl.SysRoleServiceImpl" />
+  <bean id="sysUserRoleService" class="com.fang.service.impl.SysUserRoleServiceImpl" />
+  <bean id="sysUserService" class="com.fang.service.impl.SysUserServiceImpl" />
+  <bean id="sysGroupService" class="com.fang.service.impl.SysGroupServiceImpl" />
+  <bean id="sysCityService" class="com.fang.service.impl.SysCityServiceImpl" />
+  <bean id="sysUserCityService" class="com.fang.service.impl.SysUserCityServiceImpl" />
+  <bean id="sysOnlineUserService" class="com.fang.service.impl.SysOnlineUserServiceImpl" />
+
+  <bean id="advertLocationService" class="com.fang.service.impl.AdvertLocationServiceImpl" />
+  <bean id="advertChannelService" class="com.fang.service.impl.AdvertChannelServiceImpl" />
+  <bean id="advertFileService" class="com.fang.service.impl.AdvertFileServiceImpl" />
+  <bean id="advertCommentService" class="com.fang.service.impl.AdvertCommentServiceImpl" />
+
+  <bean id="ssoUtil" class="com.fang.utils.SsoUtil" />
+  <bean id="httpClientUtil" class="com.fang.utils.web.HttpClientUtil" />
+
+
+  <bean id="cityLimit" class="com.fang.common.CityLimit" />
+
+  <!-- generator-insert-location crud plugin need this line,do not delete ! -->
+</beans>

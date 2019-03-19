@@ -1,0 +1,168 @@
+<!-- - Resin 4.0 configuration file. - version: 1.1 -->
+<resin xmlns="http://caucho.com/ns/resin" xmlns:resin="urn:java:com.caucho.resin">
+
+  <!-- Logging configuration for the JDK logging API -->
+  <log-handler name="" level="all" path="/indexdata/aduploadlogs/resin/jvm-glht-adupload.log"
+               timestamp="[%y-%m-%d %H:%M:%S.%s]"
+               rollover-period="1D"
+               archive-format="jvm-glht-adupload-%Y%m%d.log.gz"
+               format=" {${thread}} ${log.message}" />
+
+  <!-- - level='info' for production - 'fine' or 'finer' for development and troubleshooting -->
+  <logger name="" level="info" />
+  <logger name="com.caucho.java" level="config" />
+  <logger name="com.caucho.loader" level="config" />
+
+  <character-encoding>utf-8</character-encoding>
+
+  <!--
+     - health configuration
+    -->
+  <resin:import path="${__DIR__}/health.xml"/>
+
+  <!--
+     - For production sites, change dependency-check-interval to something
+     - like 600s, so it only checks for updates every 10 minutes.
+    -->
+  <dependency-check-interval>2h</dependency-check-interval>
+
+  <cluster-default>
+    <!-- shared webapp jars for non-classloader-aware libraries -->
+    <web-app-default>
+      <class-loader>
+        <library-loader path="${resin.root}/webapp-jars"/>
+        <library-loader path="${resin.root}/webapp.d/lib"/>
+        <library-loader path="config:/webapp.d/lib"/>
+      </class-loader>
+    </web-app-default>
+
+    <!-- shared jars and drivers for the app-tier -->
+    <class-loader>
+      <tree-loader path="${resin.root}/${cluster.id}-inf"/>
+      <tree-loader path="cloud:/${cluster.id}-inf"/>
+    </class-loader>
+
+    <!-- include resources config files in resources/ -->
+    <resin:import fileset="${resin.root}/${cluster.id}-inf/**/*.xml"/>
+    <resin:import fileset="cloud:/${cluster.id}-inf/**/*.xml"
+                  recover="true"/>
+
+    <!-- standard servlet behavior, including .jsp, .php, and WEB-INF -->
+    <resin:import path="classpath:META-INF/caucho/app-default.xml"/>
+
+    <!--
+       - Enables the proxy cache (available in Resin Professional)
+      -->
+    <resin:if test="true">
+      <proxy-cache memory-size="64M">
+       <!-- Vary header rewriting for IE -->
+        <rewrite-vary-as-private/>
+      </proxy-cache>
+    </resin:if>
+
+    <!-- defaults for each server, i.e. JVM -->
+    <server-default>
+      <port-default>
+        <port-thread-max>1024</port-thread-max>
+        <accept-thread-min>4</accept-thread-min>
+        <accept-thread-max>32</accept-thread-max>
+
+        <tcp-cork>true</tcp-cork>
+      </port-default>
+
+      <sendfile-enable>true</sendfile-enable>
+
+      <keepalive-select-enable>true</keepalive-select-enable>
+    </server-default>
+
+    <!--
+       - Default host configuration applied to all virtual hosts.
+      -->
+    <host-default>
+      <!--
+         - Defaults applied to each web-app.
+        -->
+      <web-app-default>
+        <prologue>
+          <allow-servlet-el/>
+        </prologue>
+
+        <form-parameter-max>256</form-parameter-max>
+
+        <!--
+           - Sets max-age for cacheable pages, e.g. static pages.
+          -->
+        <cache-mapping url-pattern="/" max-age="5s"/>
+        <cache-mapping url-pattern="*.gif" max-age="60s"/>
+        <cache-mapping url-pattern="*.jpg" max-age="60s"/>
+        <cache-mapping url-pattern="*.png" max-age="60s"/>
+        <cache-mapping url-pattern="*.css" max-age="60s"/>
+        <cache-mapping url-pattern="*.js" max-age="60s"/>
+
+        <session-config>
+          <use-persistent-store>false</use-persistent-store>
+
+          <enable-url-rewriting>false</enable-url-rewriting>
+        </session-config>
+
+      </web-app-default>
+    </host-default>
+
+    <!-- auto virtual host deployment in hosts/foo.example.com/webapps -->
+    <host-deploy path="hosts">
+      <host-default>
+        <resin:import path="host.xml" optional="true"/>
+      </host-default>
+    </host-deploy>
+
+  </cluster-default>
+
+  <cluster id="glht-adupload">
+    <server-default>
+      <jvm-arg>-Xms2048m</jvm-arg>
+      <jvm-arg>-Xmx2048m</jvm-arg>
+      <jvm-arg>-Xss256k</jvm-arg>
+      <jvm-arg>-XX:PermSize=128m</jvm-arg>
+      <jvm-arg>-XX:MaxPermSize=128m</jvm-arg>
+      <jvm-arg>-XX:+PrintClassHistogram</jvm-arg>
+      <jvm-arg>-XX:+PrintGCDetails</jvm-arg>
+      <jvm-arg>-XX:+PrintGCTimeStamps</jvm-arg>
+      <jvm-arg>-XX:+PrintGCDateStamps</jvm-arg>
+      <jvm-arg>-XX:+PrintHeapAtGC</jvm-arg>
+      <jvm-arg>-XX:+PrintTenuringDistribution</jvm-arg>
+      <jvm-arg>-Xloggc:/indexdata/aduploadlogs/resin/gc_glht_adupload.log</jvm-arg>
+    </server-default>
+
+    <server id="app5-glhtadupload" address="127.0.0.1" port="6812">
+      <watchdog-port>6612</watchdog-port>
+      <http port="8092"/>
+    </server>
+
+    <host-default>
+      <web-app-deploy path="/www/webdev/glht.adupload.fang.com"
+                      expand-preserve-fileset="WEB-INF/work/**"
+                      multiversion-routing="${webapp_multiversion_routing}"
+                      path-suffix="${elastic_webapp?resin.id:''}"/>
+    </host-default>
+
+    <host id="glht.adupload.fang.com" root-directory="/www/webdev/glht.adupload.fang.com">
+
+      <web-app id="/" root-directory="adupload.glht"/>
+
+      <stdout-log path-format="/indexdata/aduploadlogs/resin/stdout_glht_adupload.log.%Y%m%d%H"
+                  rollover-period="1D"
+                  timestamp="[%H:%M:%S.%s] " />
+
+      <stderr-log path-format="/indexdata/aduploadlogs/resin/stderr_glht_adupload.log.%Y%m%d"
+                  rollover-period="1D"
+                  timestamp="[%H:%M:%S.%s] " />
+
+      <!--<access-log path="/indexdata/aduploadlogs/access/glht.adupload.fang.com-access.log"
+                  format='%D %h %l %u %t "%r" %s %b "%{Referer}i" "%{User-Agent}i"'
+                  archive-format="glht.adupload.fang.com-access-%Y%m%d.log.gz"
+                  rollover-period="1D"/>-->
+    </host>
+
+  </cluster>
+  <system-property profiles.active="publish"></system-property>
+</resin>

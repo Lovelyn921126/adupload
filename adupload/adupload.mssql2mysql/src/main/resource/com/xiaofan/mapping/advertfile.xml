@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.fang.dao.AdvertFileDao">
+  <insert id="add" parameterType="com.fang.pojoformysql.AdvertFile">
+    insert into advert_file
+    (
+    `id`,
+    `source_id`,
+    `project_name`,
+    `source_url`,
+    `source_extension`,
+    `source_size`,
+    `source_width`,
+    `source_height`,
+    `service_type`,
+    `city_id`,
+    `location_id`,
+    `channel_id`,
+    `acquire_info_way`,
+    `upload_user_id`,
+    `upload_username`,
+    `is_delete`,
+    `create_time`,
+    `update_time`
+    )
+    values
+    (
+    #{id},
+    #{sourceId},
+    #{projectName},
+    #{sourceUrl},
+    #{sourceExtension},
+    #{sourceSize},
+    #{sourceWidth},
+    #{sourceHeight},
+    #{serviceType},
+    #{cityId},
+    #{locationId},
+    #{channelId},
+    #{acquireInfoWay},
+    #{uploadUserId},
+    #{uploadUsername},
+    #{isDelete},
+    #{createTime},
+    #{updateTime}
+    )
+  </insert>
+
+  <insert id="addBatch" parameterType="com.fang.pojoformysql.AdvertFile">
+    insert into advert_file
+    (
+    `id`,
+    `source_id`,
+    `project_name`,
+    `source_url`,
+    `source_extension`,
+    `source_size`,
+    `source_width`,
+    `source_height`,
+    `service_type`,
+    `city_id`,
+    `location_id`,
+    `channel_id`,
+    `acquire_info_way`,
+    `upload_user_id`,
+    `upload_username`,
+    `is_delete`,
+    `create_time`,
+    `update_time`
+    )
+    values
+    <foreach collection="list" item="item" index="index" separator=",">
+      (
+      #{item.id},
+      #{item.sourceId},
+      #{item.projectName},
+      #{item.sourceUrl},
+      #{item.sourceExtension},
+      #{item.sourceSize},
+      #{item.sourceWidth},
+      #{item.sourceHeight},
+      #{item.serviceType},
+      #{item.cityId},
+      #{item.locationId},
+      #{item.channelId},
+      #{item.acquireInfoWay},
+      #{item.uploadUserId},
+      #{item.uploadUsername},
+      #{item.isDelete},
+      #{item.createTime},
+      #{item.updateTime}
+      )
+    </foreach>
+  </insert>
+
+  <update id="update" parameterType="com.fang.pojoformysql.AdvertFile">
+    update advert_file set
+    `project_name` = #{projectName},
+    `source_url` = #{sourceUrl},
+    `source_extension` = #{sourceExtension},
+    `source_size` = #{sourceSize},
+    `source_width` = #{sourceWidth},
+    `source_height` = #{sourceHeight},
+    `service_type` = #{serviceType},
+    `city_id` = #{cityId},
+    `location_id` = #{locationId},
+    `channel_id` = #{channelId},
+    `acquire_info_way` = #{acquireInfoWay},
+    `upload_user_id` = #{uploadUserId},
+    `upload_username` = #{uploadUsername},
+    `is_delete` = #{isDelete},
+    `create_time` = #{createTime},
+    `update_time` = #{updateTime}
+    where
+    `source_id`=#{sourceId}
+  </update>
+
+  <delete id="delete" parameterType="com.fang.pojoformysql.AdvertFile">
+    delete from advert_file
+    where `source_id`=#{sourceId}
+  </delete>
+</mapper>

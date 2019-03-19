@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>菜单管理</title> #parse("sys/globalCSS.html")
+</head>
+
+<body class="gray-bg">
+	#parse("sys/loading.html")
+	<div id="rrapp" class="wrapper wrapper-content  animated fadeInRight"
+		v-cloak>
+		<div v-show="showList">
+			<div class="ibox ">
+				<div class="ibox-title">
+					<div class="grid-btn">
+						#if($shiro.hasPermission("sys:group:save")) <a
+							class="btn btn-primary" @click="add"><i class="fa fa-plus"></i>&nbsp;新增</a>
+						#end #if($shiro.hasPermission("sys:group:update")) <a
+							class="btn btn-primary" @click="update"><i
+							class="fa fa-pencil-square-o"></i>&nbsp;修改</a> #end
+						#if($shiro.hasPermission("sys:group:delete")) <a
+							class="btn btn-primary" @click="del"><i class="fa fa-trash-o"></i>&nbsp;删除</a>
+						#end
+					</div>
+				</div>
+				<div class="ibox-content">
+					<div class="jqGrid_wrapper">
+						<table id="jqGrid"></table>
+						<div id="jqGridPager"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="ibox float-e-margins" v-show="!showList">
+			<div class="ibox-title">
+				<h5>{{title}}</h5>
+			</div>
+			<div class="ibox-content">
+				<form class="layui-form">
+					<div class="row">
+						<div class="col-sm-6">
+							<div class="layui-form-item" v-show="showID" >
+								<label class="layui-form-label">集团ID</label>
+								<div class="layui-input-block">
+									<input type="number" class="layui-input form-control"
+										name="groupId" lay-verify="required|number" autocomplete="off"
+										placeholder="集团ID" v-model="group.groupId">
+								</div>
+							</div>
+							<div class="layui-form-item" v-show="!showlable" >
+								<label class="layui-form-label">集团ID</label>
+								<div class="layui-input-block">
+									<label class="layui-form-label" name="groupId"
+										autocomplete="off" v-model="group.groupId">{{group.groupId}}</label>
+								</div>
+							</div>
+
+							<div class="layui-form-item">
+								<label class="layui-form-label">集团名称</label>
+								<div class="layui-input-block">
+									<input type="text" class="layui-input form-control" name="name"
+										lay-verify="required" autocomplete="off"
+										placeholder="集团名称或按钮名称" v-model="group.name">
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">父级集团</label>
+								<div class="layui-input-block">
+									<input type="number" class="layui-input form-control"
+										lay-verify="number" name="parentId" v-model="group.parentId"
+										placeholder="父级集团ID" />
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">状态</label>
+								<div class="layui-input-block">
+									<input type="radio" name="isDelete" value="0"
+										v-model="group.isDelete" lay-filter="isDelete" title="正常">
+									<input type="radio" name="isDelete" value="1"
+										v-model="group.isDelete" lay-filter="isDelete" title="禁用">
+								</div>
+							</div>
+
+
+
+
+						</div>
+						<div class="col-sm-6">
+
+							<div class="layui-form-item">
+								<label class="layui-form-label">上级菜单 <br> <small
+									class="text-navy">单击选中</small>
+								</label>
+								<div class="layui-input-block">
+									<!-- 选择菜单 -->
+									<div>
+										当前选中：<span class="text-navy">{{group.parentName}}</span>
+									</div>
+									<div id="groupLayer">
+										<ul id="groupTree" class="ztree"></ul>
+									</div>
+								</div>
+							</div>
+
+						</div>
+					</div>
+
+					<div class="layui-form-item">
+						<div class="layui-input-block">
+							<button class="layui-btn" lay-submit="" lay-filter="submit">立即提交</button>
+							<button type="reset" class="layui-btn layui-btn-primary"
+								@click="reload">返回</button>
+						</div>
+					</div>
+
+				</form>
+			</div>
+		</div>
+	</div>
+	#parse("sys/globalJS.html")
+	<script src="${rc.contextPath}/js/sys/group.js?_${date.systemTime}"></script>
+</body>
+
+</html>

@@ -1,0 +1,419 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+	<title>广告管理-zip上传</title>
+	#parse("sys/globalCSS.html")
+	<link href="${rc.contextPath}/statics/libs/plugins/uploadify/css/uploadify.css" rel="stylesheet">
+</head>
+
+<body>
+	#parse("sys/loading.html")
+	<div id="rrapp" class="wrapper wrapper-content  animated fadeInRight" v-cloak>
+		<form class="layui-form">
+			<div class="row">
+				<div class="col-sm-4">
+
+					<div class="layui-form-item">
+						<label class="layui-form-label">网络线路</label>
+						<div class="layui-input-block">
+							<select name="netRoad" v-model="file.netRoad" lay-verify="netRoad" lay-filter="netRoad" :disabled="opType === 2 || !editable">
+								<option value="">请选择</option>
+								<option value="http://imgdnu.fang.com/upload/zip">北方（网通线路）</option>
+								<option value="http://imgdu.fang.com/upload/zip">南方（电信线路）</option>
+							</select>
+						</div>
+					</div>
+
+					<div class="layui-form-item">
+						<label class="layui-form-label">所属城市</label>
+						<div class="layui-input-block">
+							<select name="cityId" v-model="file.cityId" lay-verify="cityId" lay-filter="cityId" :disabled="opType === 2 || !editable">
+								<option value="">请选择</option>
+								<option v-for="city in cityList" v-bind:value="city.cityId" >{{city.name}}</option>
+							</select>
+						</div>
+					</div>
+
+					<div class="layui-form-item">
+						<label class="layui-form-label">所属频道</label>
+						<div class="layui-input-block">
+							<select name="channelId" v-model="file.channelId" lay-verify="channelId" lay-filter="channelId" :disabled="opType === 2 || !editable">
+								<option value="">请选择</option>
+								<option v-for="channel in channelList" v-bind:value="channel.id" >{{channel.name}}</option>
+							</select>
+						</div>
+					</div>
+
+					<div class="layui-form-item">
+						<label class="layui-form-label">项目名称</label>
+						<div class="layui-input-block">
+							<input type="text" class="layui-input form-control" maxlength="50" name="projectName" lay-verify="required" autocomplete="off" placeholder="项目名称"
+							 v-model="file.projectName" :disabled="opType === 2 || !editable" />
+							<small class="text-navy">请尽量填写有实际意义的项目名</small><br>
+							<small class="text-danger">强烈不建议填写简单数字、字母等</small>
+						</div>
+					</div>
+
+				</div>
+				<div class="col-sm-8">
+
+					<div class="layui-form-item">
+						<label class="layui-form-label">上传文件</label>
+						<div class="layui-input-block">
+							<small class="text-navy"><i class="fa fa-exclamation-circle"></i>谷歌浏览器下,文件选取需要等待一小会儿，请耐心</small><br />
+							<small class="text-danger">选择文件后，不要忘了“立即提交”哟</small>
+							<input type="file" name="file_upload" id="file_upload" />
+						</div>
+					</div>
+
+					<div class="layui-form-item">
+						<label class="layui-form-label">广告文件</label>
+						<div class="layui-input-block">
+							<div class="layui-form-mid text-navy word-wrap">{{file.sourceUrl}}</div>
+						</div>
+					</div>
+
+					<div class="layui-form-item">
+						<label class="layui-form-label">原广告文件</label>
+						<div class="layui-input-block">
+							<div class="layui-form-mid text-navy word-wrap">{{file.oriAdver}}</div>
+						</div>
+					</div>
+
+				</div>
+			</div>
+
+			<div class="layui-form-item">
+				<div class="layui-input-block">
+					<button class="layui-btn" lay-submit="" lay-filter="zipSaveOrUpdate" :disabled="!submitable">立即提交</button>
+					<!--<button type="reset" class="layui-btn layui-btn-primary" @click="reload">返回</button>-->
+				</div>
+			</div>
+
+		</form>
+
+		<div>
+			<br/>
+			<fieldset>
+				<legend>上传前必读</legend>
+			</fieldset>
+			<blockquote class="layui-elem-quote" style="font-size:13px">
+				<p>
+					<span>1、通过网页上传, 单个ZIP文件大小不能超过 80 MB。 如果想要上传超过80 MB的ZIP文件，可以按照以下步骤上传： </span><br>
+					<span>①将ZIP文件分成若干份ZIP文件：zip1，zip2，zip3(每个ZIP文件不能超过80M)。 </span><br>
+					<span>②先上传一个zip1，上传完成后，不要关闭页面，不要点击返回，不要更改其他选项。</span><br>
+					<span>③继续点击“选择文件”，选择zip2上传，以此类推~</span>
+				</p>
+				<p>
+					<span class="text-danger">2、请不要上传有版权和违法的内容的文件，所有因内容违法（暴力、色情等）、版权引起问题，其责任由发布者承担。</span>
+				</p>
+			</blockquote>
+		</div>
+	</div>
+	#parse("sys/globalJS.html")
+	<script type="text/javascript">
+		// 添加全局站点信息
+		var BASE_URL = '${rc.contextPath}/statics/libs/plugins/uploadify';
+	</script>
+	<script src="${rc.contextPath}/statics/libs/plugins/uploadify/js/jquery.uploadify.js"></script>
+
+	<script>
+		layui.use(['form'], function () {
+			var form = layui.form(),
+				layer = layui.layer;
+			window.form = layui.form();
+
+			//自定义验证规则
+			form.verify({
+				netRoad: function (value) {
+					if (value == null || value == '0' || value.length == 0) {
+						return '网络线路不能为空';
+					}
+				},
+				cityId: function (value) {
+					if (value == null || value.length == 0) {
+						return '城市不能为空';
+					}
+				},
+				channelId: function (value) {
+					if (value == null || value == '0' || value.length == 0) {
+						return '频道不能为空';
+					}
+				},
+				file: function (value) {
+					if (vm.opType === 1 || vm.opType === 2) {
+						var count = vm.uploader.uploadify('getQueueData').queueLength;
+						if (count == null || count <= 0) {
+							return '必须要有一个文件哈';
+						}
+					}
+				}
+			});
+
+			//监听select
+			form.on('select(netRoad)', function (data) {
+				vm.file.netRoad = data.value;
+			});
+			form.on('select(cityId)', function (data) {
+				vm.file.cityId = data.value;
+				vm.file.cityName = data.elem[data.elem.selectedIndex].innerText;
+			});
+			form.on('select(channelId)', function (data) {
+				vm.file.channelId = data.value;
+				vm.file.channelName = data.elem[data.elem.selectedIndex].innerText;
+			});
+
+			//监听提交
+			form.on('submit(zipSaveOrUpdate)', function (data) {
+				vm.submitable = false;
+				vm.uploader.uploadify('disable', !vm.submitable);
+				vm.saveOrUpdate();
+				return false;
+			});
+		});
+
+		$(function () {
+			vm.uploader.uploadify({
+				'auto': false,
+				'buttonClass': 'btn btn-primary btn-sm',
+				'buttonText': '选择文件',
+				'debug': false,
+				'fileObjName': 'file',
+				'fileSizeLimit': vm.file.locSizeName,
+				'fileTypeDesc': 'zip文件',
+				'fileTypeExts': '*.zip;',
+				'multi': false,
+				'queueSizeLimit': 1,
+				'removeCompleted': false,
+				'swf': BASE_URL + '/uploadify.swf',
+				'successTimeout': 500,
+				'scriptAccess' : 'always',
+				'onUploadError': function (file, errorCode, errorMsg, errorString) {
+					if (errorCode !== -280) {
+						toastr.error('文件[' + file.name + ']上传失败:<br/>' + errorMsg + '<br/>' + errorString, "");
+					}
+				},
+				'onUploadComplete': function (file) {
+					var queueData = vm.uploader.uploadify('getQueueData');
+					if (vm.uploader.uploadify("settings", "removeCompleted")) {
+						switch (file.filestatus) {
+							case SWFUpload.FILE_STATUS.COMPLETE:
+								setTimeout(function () {
+									if ($('#' + file.id)) {
+										queueData.queueSize -= file.size;
+										//queueData.queueLength -= 1;
+										delete queueData.files[file.id]
+										$('#' + file.id).fadeOut(500, function () {
+											$(this).remove();
+										});
+									}
+								}, settings.removeTimeout * 1000);
+								break;
+							case SWFUpload.FILE_STATUS.ERROR:
+								if (!settings.requeueErrors) {
+									setTimeout(function () {
+										if ($('#' + file.id)) {
+											queueData.queueSize -= file.size;
+											//queueData.queueLength -= 1;
+											delete queueData.files[file.id];
+											$('#' + file.id).fadeOut(500, function () {
+												$(this).remove();
+											});
+										}
+									}, settings.removeTimeout * 1000);
+								}
+								break;
+						}
+					} else {
+						//file.uploaded = true;
+						switch (file.filestatus) {
+							case SWFUpload.FILE_STATUS.COMPLETE:
+								if ($('#' + file.id)) {
+									queueData.queueSize -= file.size;
+									//queueData.queueLength -= 1;
+									delete queueData.files[file.id]
+								}
+								break;
+							case SWFUpload.FILE_STATUS.ERROR:
+								if (!settings.requeueErrors) {
+									if ($('#' + file.id)) {
+										queueData.queueSize -= file.size;
+										//queueData.queueLength -= 1;
+										delete queueData.files[file.id];
+										// $('#' + file.id).fadeOut(500, function () {
+										// 	$(this).remove();
+										// });
+									}
+								}
+								break;
+						}
+					}
+					vm.submitable = true;
+				  vm.uploader.uploadify('disable', !vm.submitable);
+				},
+				'onUploadSuccess': function (file, data, response) {
+					vm.timer = setTimeout(vm.uploadSuccessCallback, 1000);
+				},
+				'onFallback': function () {
+					toastr.error("当前Flash版本不匹配，请更新您的Flash插件到最新版本,或者尝试其他浏览器.", "");
+				}
+			});
+		});
+
+		var vm = new Vue({
+			el: '#rrapp',
+			data: {
+				opType: 1, //1:新增；2:编辑
+				editable: true, // opType为2时，不起作用
+				submitable: true, // 控制提交按钮是否可用
+				cityList: {},
+				channelList: {},
+				locationList: {},
+				title: null,
+				uploader: $("#file_upload"),
+				file: {
+					netRoad: 'http://imgdu.fang.com/upload/zip',
+					serviceType: 1,
+					cityId: '',
+					cityName: '',
+					channelId: 0,
+					channelName: '',
+					projectName: '',
+					sourceId: '',
+					sourceExtension: 'ZIP',
+					sourceUrl: '',
+					oriAdver: '',
+					locSizeName: '80MB',
+				}
+			},
+			methods: {
+				saveOrUpdate: function () {
+					vm.file.projectName = vm.file.projectName.trim();
+					vm.uploader.uploadify('settings', 'uploader', vm.uploadUrl());
+					var count = vm.uploader.uploadify('getQueueData').queueLength;
+					if (count > 0) {
+						vm.uploader.uploadify('upload', '*');
+					} else {
+						vm.doSaveOrUpdate(count);
+					}
+					vm.saveCookie();
+				},
+				uploadSuccessCallback: function () {
+					vm.doSaveOrUpdate(1);
+				},
+				doSaveOrUpdate: function (count) {
+					if (!vm.editable) {
+						return;
+					}
+					vm.submitable = false;
+				    vm.uploader.uploadify('disable', !vm.submitable);
+					var url = vm.opType === 1 ? "../advert/zipAdUpload/save" : count > 0 ? "../advert/zipAdUpload/updateWithFile/" : "../advert/zipAdUpload/update/";
+					$.ajax({
+						type: "POST",
+						url: url,
+						data: JSON.stringify(vm.file),
+						success: function (r) {
+							vm.editable = false;
+							if (r.code === 0) {
+								alert('文件上传成功', function (index) {
+									vm.file = r.file
+									vm.file.locSizeName = '80MB';
+								});
+							} else {
+								vm.editable = true;
+								toastr.error(r.msg, "");
+							}
+					        vm.submitable = true;
+				            vm.uploader.uploadify('disable', !vm.submitable);
+						}
+					});
+				},
+				uploadUrl: function () {
+					var cityName = vm.file.cityName;
+					if (cityName === "漳州" || cityName === "汕头") {
+						cityName = "";
+					}
+					var link = vm.file.netRoad + "?i=" + vm.file.sourceId + "&city=" + encodeURI(cityName) + "&channel=" + encodeURI(vm.file.channelName);
+
+					if (vm.opType === 2) {
+						link = link + "&url=" + _.trimEnd(vm.file.oriAdver, '/') + ".zip";
+					}
+
+					return link;
+				},
+				saveCookie: function () {
+					$.cookie('advertZipCityId', vm.file.cityId, { expires: 30 });
+                    $.cookie('advertZipChannelId', vm.file.channelId, { expires: 30 });
+                    $.cookie('advertZipNetRoad', vm.file.netRoad, { expires: 30 });
+                    $.cookie('advertZipCityName', vm.file.cityName, { expires: 30 });
+                    $.cookie('advertZipChannelName', vm.file.channelName, { expires: 30 });
+				},
+				getCookie: function () {
+                    if($.cookie('advertZipCityName')) {
+                    	this.file.cityId = $.cookie('advertZipCityId') || '';
+                        this.file.channelId = $.cookie('advertZipChannelId') || 0;
+                        this.file.netRoad = $.cookie('advertZipNetRoad') || 'http://imgdu.fang.com/upload/zip';
+                        this.file.cityName = $.cookie('advertZipCityName') || '';
+                        this.file.channelName = $.cookie('advertZipChannelName') || '';
+                    }
+                    
+                    /* if(this.file.netRoad == 'http://imgdnu.fang.com/upload/zip'){
+                  	  this.file.netRoad = 'http://imgdu.fang.com/upload/zip'
+                    } */
+				},
+				getCityList: function () {
+					$.get("../sys/city/select", function (r) {
+						vm.cityList = r.cityList
+					});
+				},
+				getChannelList: function () {
+					$.get("../advert/sys/channel/select", function (r) {
+						vm.channelList = r.list
+					});
+				},
+				getZipGuid: function () {
+					$.get("../common/getNewGuid", function (r) {
+						vm.file.sourceId = r.guid;
+					});
+				}
+			},
+			created: function () {
+				this.getCityList();
+				this.getChannelList();
+				try {
+					this.opType = parent.vm.opType;
+					if (this.opType === 2) {
+						this.file = parent.vm.file;
+						this.file.netRoad = _.startsWith(parent.vm.file.sourceUrl,"http://imgdn") ? "http://imgdnu.fang.com/upload/zip" : 'http://imgdu.fang.com/upload/zip' ;
+						this.file.serviceType = 1;
+						this.file.sourceExtension = 'ZIP';
+						this.file.oriAdver = parent.vm.file.sourceUrl;
+						this.file.locSizeName = '80MB';
+						// var parentFile = parent.vm.file;
+						// this.file.cityId = parentFile.cityId;
+						// this.file.channelId = parentFile.channelId;
+					} else {
+						this.getZipGuid();
+						this.getCookie();
+					}
+				} catch (error) {
+					this.getZipGuid();
+				}
+			},
+			updated: function () {
+				try {
+					window.form.render();
+				} catch (error) {
+					//
+				}
+			}
+		});
+		$('.tooltip-demo').tooltip({
+			selector: "[data-toggle=tooltip]",
+			container: "body"
+		});
+	</script>
+</body>
+
+</html>

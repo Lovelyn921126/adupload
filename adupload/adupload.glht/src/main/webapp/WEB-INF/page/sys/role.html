@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>角色管理</title>
+	#parse("sys/globalCSS.html")
+</head>
+
+<body class="gray-bg">
+	#parse("sys/loading.html")
+	<div id="rrapp" class="wrapper wrapper-content  animated fadeInRight" v-cloak>
+		<div v-show="showList">
+			<div class="ibox ">
+				<div class="ibox-title">
+					<div class="grid-btn">
+						<div class="col-sm-2">
+							<input type="text" class="layui-input form-control" v-model="q.roleName" @keyup.enter="query" placeholder="角色名称">
+						</div>
+						<a class="btn btn-outline btn-primary" @click="query">查询</a> #if($shiro.hasPermission("sys:role:save"))
+						<a class="btn btn-primary" @click="add"><i class="fa fa-plus"></i>&nbsp;新增</a> #end #if($shiro.hasPermission("sys:role:update"))
+						<a class="btn btn-primary" @click="update"><i class="fa fa-pencil-square-o"></i>&nbsp;修改</a> #end #if($shiro.hasPermission("sys:role:delete"))
+						<a class="btn btn-primary" @click="del"><i class="fa fa-trash-o"></i>&nbsp;删除</a> #end
+					</div>
+				</div>
+				<div class="ibox-content">
+					<div class="jqGrid_wrapper">
+						<table id="jqGrid"></table>
+						<div id="jqGridPager"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div v-show="!showList" class="ibox float-e-margins">
+			<div class="ibox-title">
+				<h5>{{title}}</h5>
+			</div>
+			<div class="ibox-content">
+				<form class="layui-form">
+					<div class="row">
+						<div class="col-sm-6">
+
+							<div class="layui-form-item">
+								<label class="layui-form-label">角色名称</label>
+								<div class="layui-input-block">
+									<input type="text" class="layui-input form-control" name="roleName" lay-verify="required" autocomplete="off" placeholder="角色名称"
+									    v-model="role.roleName" />
+								</div>
+							</div>
+
+							<div class="layui-form-item">
+								<label class="layui-form-label">备注</label>
+								<div class="layui-input-block">
+									<input type="text" class="layui-input form-control" name="remark" v-model="role.remark" placeholder="备注" />
+								</div>
+							</div>
+
+							<div class="layui-form-item">
+								<label class="layui-form-label">父角色</label>
+								<div class="layui-input-block">
+									<input type="radio" name="parentId" lay-verify="role" v-for="r in roleList" v-bind:value="r.roleId" v-model="role.parentId" :title="r.roleName" lay-filter="role">
+								</div>
+							</div>
+
+						</div>
+						<div class="col-sm-6">
+
+							<div class="layui-form-item">
+								<label class="layui-form-label">授权</label>
+								<div class="layui-input-block">
+									<div id="menuLayer" style="max-height: 350px;overflow:auto;">
+										<ul id="menuTree" class="ztree"></ul>
+									</div>
+								</div>
+							</div>
+
+						</div>
+					</div>
+
+					<div class="layui-form-item">
+						<div class="layui-input-block">
+							<button class="layui-btn" lay-submit="" lay-filter="submit">立即提交</button>
+							<button type="reset" class="layui-btn layui-btn-primary" @click="reload">返回</button>
+						</div>
+					</div>
+
+				</form>
+			</div>
+		</div>
+	</div>
+	#parse("sys/globalJS.html")
+	<script src="${rc.contextPath}/js/sys/role.js?_${date.systemTime}"></script>
+</body>
+
+</html>

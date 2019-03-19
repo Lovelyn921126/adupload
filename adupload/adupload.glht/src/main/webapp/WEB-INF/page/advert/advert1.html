@@ -1,0 +1,38 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>UploadiFive Test</title>
+<script src="http://cdnjs.gtimg.com/cdnjs/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+<script src="http://jqcool.net/demo/201412/jquery-uploadify/jquery.uploadify.min.js" type="text/javascript"></script>
+<link rel="stylesheet" type="text/css" href="http://jqcool.net/demo/201412/jquery-uploadify/uploadify.css">
+
+<style type="text/css">
+body {
+	font: 13px Arial, Helvetica, Sans-serif;
+}
+</style>
+</head>
+
+<body>
+	<h1>Uploadify Demo</h1>
+	<form>
+		<div id="queue"></div>
+		<input id="file_upload" name="file_upload" type="file" multiple>
+	</form>
+
+	<script type="text/javascript">
+				$(function() {
+			$('#file_upload').uploadify({
+				'formData'     : {
+					'timestamp' : '1493023534',
+					'token'     : '9b523be90098bc989e1218f8b9442e60'
+				},
+				'swf'      : 'uploadify.swf',
+				'uploader' : 'uploadify.php'
+			});
+		});
+	</script>
+</body>
+</html>

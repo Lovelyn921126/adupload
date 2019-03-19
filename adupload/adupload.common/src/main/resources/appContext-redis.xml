@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+  xmlns:tx="http://www.springframework.org/schema/tx" xmlns:security="http://www.springframework.org/schema/security" xmlns:p="http://www.springframework.org/schema/p" xmlns:mvc="http://www.springframework.org/schema/mvc"
+  xmlns:util="http://www.springframework.org/schema/util" xmlns:aop="http://www.springframework.org/schema/aop"
+  xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.2.xsd
+  http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-4.2.xsd
+  http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+  http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd
+  http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.2.xsd
+  http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.2.xsd
+  http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.2.xsd">
+
+  <!-- 引入redis配置文件 -->
+  <context:property-placeholder ignore-unresolvable="true" location="classpath:conf/redis/redis.${profiles.active}.properties" />
+
+  <bean id="poolConfig" class="redis.clients.jedis.JedisPoolConfig">
+    <property name="maxIdle" value="${redis.maxIdle}" />
+    <property name="maxTotal" value="${redis.maxActive}" />
+    <property name="maxWaitMillis" value="${redis.maxWait}" />
+    <property name="testOnBorrow" value="${redis.testOnBorrow}" />
+  </bean>
+
+  <!-- 普通数据相关 -->
+  <bean id="jedisPool_w" class="com.fang.utils.nosql.redis.pool.JedisDirectPool">
+    <constructor-arg name="poolName" value="pool" />
+    <constructor-arg name="host" value="${redis.host_w}" />
+    <constructor-arg name="port" value="${redis.port}" />
+    <constructor-arg name="passpost" value="${redis.password}" />
+    <constructor-arg name="config" ref="poolConfig" />
+    <constructor-arg name="database" value="${redis.database}" />
+  </bean>
+
+  <bean id="jedisPool_r" class="com.fang.utils.nosql.redis.pool.JedisDirectPool">
+    <constructor-arg name="poolName" value="pool" />
+    <constructor-arg name="host" value="${redis.host_r}" />
+    <constructor-arg name="port" value="${redis.port}" />
+    <constructor-arg name="passpost" value="${redis.password}" />
+    <constructor-arg name="config" ref="poolConfig" />
+    <constructor-arg name="database" value="${redis.database}" />
+  </bean>
+
+  <bean id="jedisTemplateW" class="com.fang.utils.nosql.redis.JedisTemplate">
+    <constructor-arg name="jedisPool" ref="jedisPool_w" />
+  </bean>
+
+  <bean id="jedisTemplateR" class="com.fang.utils.nosql.redis.JedisTemplate">
+    <constructor-arg name="jedisPool" ref="jedisPool_r" />
+  </bean>
+
+  <bean id="jedisScriptExecutor" class="com.fang.utils.nosql.redis.JedisScriptExecutor">
+    <constructor-arg name="jedisTemplate" ref="jedisTemplateW" />
+  </bean>
+
+</beans>

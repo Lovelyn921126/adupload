@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.fang.dao.SysUserToCityDao">
+  <insert id="add" parameterType="java.util.HashMap">
+    insert into sys_user_city
+    (
+    `id`,
+    `city_id`,
+    `user_id`
+    )
+    values
+    (
+    #{id},
+    #{cityId},
+    #{userId}
+    )
+  </insert>
+
+  <insert id="addBatch" parameterType="java.util.HashMap">
+    insert into sys_user_city
+    (
+    `id`,
+    `city_id`,
+    `user_id`
+    )
+    values
+    <foreach collection="list" item="item" index="index" separator=",">
+      (
+      #{item.id},
+      #{item.cityId},
+      #{item.userId}
+      )
+    </foreach>
+  </insert>
+  <delete id="delete" parameterType="com.fang.pojoformysql.SysUser">
+    delete from sys_user_city
+    where `user_id`=#{userId}
+  </delete>
+</mapper>

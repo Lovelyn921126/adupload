@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration>
+
+  <property name="dir" value="E://logs/adupload" />
+  <property name="filePrefix" value="adupload.jk" />
+
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{80} %method - %msg%n</pattern>
+      <charset>GBK</charset>
+    </encoder>
+  </appender>
+
+  <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>${dir}/${filePrefix}.%d{yyyy-MM-dd}.log</fileNamePattern>
+      <maxHistory>30</maxHistory>
+    </rollingPolicy>
+    <encoder>
+      <Pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{80} %method - %msg%n</Pattern>
+      <charset>GBK</charset>
+    </encoder>
+  </appender>
+
+  <!-- <appender name="FILE2" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${dir}/${groupId}.${artifactId}.log</file>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>${dir}/${groupId}.${artifactId}.%d.log.zip</fileNamePattern>
+      <maxHistory>30</maxHistory>
+    </rollingPolicy>
+    <encoder>
+      <Pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{80} - %msg%n</Pattern>
+      <charset>GBK</charset>
+    </encoder>
+  </appender> -->
+
+  <root level="INFO">
+    <appender-ref ref="FILE" />
+  </root>
+
+  <!-- <logger name="com.fang.utils.web.RJsonp" addtivity="false" level="ERROR">
+    <appender-ref ref="FILE" />
+  </logger> -->
+
+</configuration>

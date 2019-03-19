@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.fang.dao.AdvertLocationDao">
+  <select id="queryList" resultType="com.fang.entity.vo.AdvertLocationVo">
+    select l.*, (select c.name from advert_channel c where c.id = l.channel_id)
+    as channelName from advert_location l
+    <where>
+      <if test="name != null and name.trim() != ''">
+        and l.name like concat('%',#{name},'%')
+      </if>
+    </where>
+  </select>
+
+  <select id="select" resultType="com.fang.entity.vo.AdvertLocationVo">
+    select l.*, (select c.name from advert_channel c where c.id = l.channel_id)
+    as channelName from advert_location l
+    <where>
+      l.is_delete = 0
+      <if test="value != null">
+        and l.channel_id = #{value}
+      </if>
+    </where>
+  </select>
+
+  <select id="queryObject" resultType="com.fang.entity.vo.AdvertLocationVo">
+    select l.*, (select c.name from advert_channel c where c.id = l.channel_id)
+    as channelName from advert_location l where l.id = #{value}
+  </select>
+
+  <select id="queryByName" resultType="com.fang.entity.vo.AdvertLocationVo">
+  select l.*, (select c.name from advert_channel c where c.id = l.channel_id)
+    as channelName from advert_location l where l.name = #{value}
+  </select>
+
+  <insert id="save" parameterType="com.fang.entity.vo.AdvertLocationVo" useGeneratedKeys="true" keyProperty="id">
+    insert into advert_location
+    (
+    `name`,
+    `channel_id`,
+    `size`,
+    `units`,
+    `width`,
+    `height`,
+    `is_delete`,
+    `create_time`
+    )
+    values
+    (
+    #{name},
+    #{channelId},
+    #{size},
+    #{units},
+    #{width},
+    #{height},
+    #{isDelete},
+    #{createTime}
+    )
+  </insert>
+
+  <update id="update" parameterType="com.fang.entity.vo.AdvertLocationVo">
+    update advert_location
+    <set>
+      <if test="name != null and name.trim() != ''">`name` = #{name},</if>
+      <if test="channelId != null">`channel_id` = #{channelId},</if>
+      <if test="size != null and size > 0">`size` = #{size},</if>
+      <if test="units != null">`units` = #{units},</if>
+      <if test="width != null and width > 0">`width` = #{width},</if>
+      <if test="height != null and height > 0">`height` = #{height},</if>
+      <if test="isDelete != null">`is_delete` = #{isDelete},</if>
+      <if test="updateTime != null">`update_time` = #{updateTime}</if>
+    </set>
+    where id = #{id}
+  </update>
+
+  <delete id="deleteBatch">
+    delete from advert_location where id in
+    <foreach item="id" collection="array" open="(" separator="," close=")">
+      #{id}
+    </foreach>
+  </delete>
+
+  <!-- 检查 新增/更改时名称是否重复 -->
+  <select id="exists" parameterType="com.fang.entity.vo.AdvertLocationVo" resultType="int">
+    select count(1) as `count` from advert_location l
+    <where>
+      name = #{name}
+      <if test="id != null">
+        and id != #{id}
+      </if>
+    </where>
+  </select>
+
+  <!-- 查询指定频道下是否存在广告位 -->
+  <select id="existsByChannelId" parameterType="java.lang.Integer" resultType="int">
+    select count(1) as `count` from
+    advert_location l where l.channel_id = #{value}
+  </select>
+</mapper>
